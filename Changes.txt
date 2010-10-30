@@ -9,8 +9,10 @@ interface system.Computer :
 	  */
 	  void addComposeTasks(List<Task<?>> listOfTasks, List<?> parameters);
 
-	  /* Returns the size of the computer's queue*/
+	  /* Returns the size of the computer's queue at runtime*/
 	  Integer getQueueSize();
+
+
 
 interface system.Computer2Space :
 	  
@@ -25,10 +27,28 @@ interface system.Computer2Space :
 	  */
 	  void pushResults(String computerId, List<Result<?>> results);e
 
+
+
 interface api.Task :
 
-	  /* The Space uses the already existing method : Task.getStatus() to figure out 
+ 	  /* New enum constants explaining if the task has been queued or not in the computer's local queue*/
+	  enum QueueStatus{ QUEUED, NOT_QUEUED};
+
+	  /* The Space uses this new method : Task.getQueueStatus() to figure out 
 	     which tasks have to be assigned to other Computers in the cluster.
 	  */
-	  add enum constants : QUEUED and NOT_QUEUED meaning that the task has been queued/not queued for execution in the Computer
+	  Task.QueueStatus getQueueStatus();
+	  
+	  /* The computer uses this method to set the queue status in subtasks before returning them to the space*/
+	  void setQueueStatus(Task.QueueStatus newStatus);
+	  
+	 
+	  
+interface system.Client2Space :
+	
+	 /* The client specifies if the computers should be optimized for communication latency and if
+	    the computers should use multiple worker threads. These values are passed as command-line arguments
+	    through the ant command.
+	 */ 
+	  Result<?> compute(Task<?> task, Shared<?> shared, boolean commnOptimization, boolean workerThreads);
 
