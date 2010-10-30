@@ -1,0 +1,34 @@
+interface system.Computer :
+
+	  /* Space uses this method to add a list of decompose tasks to the computer's local task queue.*/
+	  void addDecomposeTasks(List<Task<?>> listOfTasks);
+
+	  /* Space uses this method to add a list of compose tasks to the computer's local task queue.
+	     The list of parameters passed has a 1-1 relation to the list of tasks.
+	     parameters.size() will always be equal to listOfTasks.size() 
+	  */
+	  void addComposeTasks(List<Task<?>> listOfTasks, List<?> parameters);
+
+	  /* Returns the size of the computer's queue*/
+	  Integer getQueueSize();
+
+interface system.Computer2Space :
+	  
+	  /* Registers a computer to the space.
+	     computerId -> Hostname of the registering computer. Example : dudley, snoopy, marge etc.
+	     		   This can be used to identify the computer when it returns results to the Space.
+	  */
+	  void register(Computer aComputer, String computerId, int numOfCores);
+
+	  /* Pushes cached results to the Space.
+	     computerId -> Same as above
+	  */
+	  void pushResults(String computerId, List<Result<?>> results);e
+
+interface api.Task :
+
+	  /* The Space uses the already existing method : Task.getStatus() to figure out 
+	     which tasks have to be assigned to other Computers in the cluster.
+	  */
+	  add enum constants : QUEUED and NOT_QUEUED meaning that the task has been queued/not queued for execution in the Computer
+
