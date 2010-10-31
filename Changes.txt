@@ -1,13 +1,7 @@
 interface system.Computer :
 
-	  /* Space uses this method to add a list of decompose tasks to the computer's local task queue.*/
-	  void addDecomposeTasks(List<Task<?>> listOfTasks);
-
-	  /* Space uses this method to add a list of compose tasks to the computer's local task queue.
-	     The list of parameters passed has a 1-1 relation to the list of tasks.
-	     parameters.size() will always be equal to listOfTasks.size() 
-	  */
-	  void addComposeTasks(List<Task<?>> listOfTasks, List<?> parameters);
+	  /* Space uses this method to add a list of tasks to the computer's local task queue.*/
+	  void addTasks(List<Task<?>> listOfTasks);
 
 	  /* Returns the size of the computer's queue at runtime*/
 	  Integer getQueueSize();
@@ -25,7 +19,7 @@ interface system.Computer2Space :
 	  /* Pushes cached results to the Space.
 	     computerId -> Same as above
 	  */
-	  void pushResults(String computerId, List<Result<?>> results);e
+	  void pushResults(String computerId, List<Result<?>> results);
 
 
 
