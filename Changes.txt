@@ -4,11 +4,15 @@ interface system.Computer :
 	  void addTasks(List<Task<?>> listOfTasks);
 
 	  /* Returns the size of the computer's queue at runtime*/
-	  Integer getQueueSize();
+	  Integer getTaskQueueSize();
 	
-	 /*Starts worker threads in the remote computer*/
-	 void startWorkers(int numOfWorkers);
+	 /*Compute space uses this method to start worker threads in the remote computer
+	    and to specify the maximum size of the local task queue in the computer*/
+	 void startWorkers(int numOfWorkers, int taskQueueMaxSize);
 
+	 /* Used by Computer to communicate results to Space */
+	 void sendResults(List<Result<?>> results);
+}
 
 interface system.Computer2Space :
 	  
@@ -21,7 +25,7 @@ interface system.Computer2Space :
 	  /* Pushes cached results to the Space.
 	     computerId -> Same as above
 	  */
-	  void pushResults(String computerId, List<Result<?>> results);
+	  void sendResults(String computerId, List<Result<?>> results);
 
 
 
