@@ -5,7 +5,9 @@ interface system.Computer :
 
 	  /* Returns the size of the computer's queue at runtime*/
 	  Integer getQueueSize();
-
+	
+	 /*Starts worker threads in the remote computer*/
+	 void startWorkers(int numOfWorkers);
 
 
 interface system.Computer2Space :
@@ -14,7 +16,7 @@ interface system.Computer2Space :
 	     computerId -> Hostname of the registering computer. Example : dudley, snoopy, marge etc.
 	     		   This can be used to identify the computer when it returns results to the Space.
 	  */
-	  void register(Computer aComputer, String computerId, int numOfCores);
+	  void register(Computer aComputer, String computerId, int numOfProcessors);
 
 	  /* Pushes cached results to the Space.
 	     computerId -> Same as above
