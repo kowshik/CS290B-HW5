@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package system;
 
 import api.Result;
