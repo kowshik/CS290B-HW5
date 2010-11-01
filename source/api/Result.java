@@ -33,6 +33,17 @@ public interface Result<T> {
 	 */
 	
 	void setSubTasks(List<Task<T>> subTasks);
+	
+	/**
+	 * @return Returns the ID of task responsible for the underlying computation
+	 */
+	String getId(); 	
+	
+
+	/**
+	 * @return Returns the Parent ID of task responsible for the underlying computation
+	 */
+	String getParentId(); 	
 
 
 	

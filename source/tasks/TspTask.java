@@ -211,7 +211,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 * 
 	 */
 	private Result<List<City>> decompose() {
-		Result<List<City>> r = new ResultImpl<List<City>>();
+		Result<List<City>> r = new ResultImpl<List<City>>(this.getId(), this.getParentId());
 		try {
 			// Get the shared object from the computer
 			TspShared compShared = (TspShared) this.computer.getShared();
@@ -320,7 +320,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		 */
 
 		List<List<City>> minRoutes = this.getValues();
-		Result<List<City>> r = new ResultImpl<List<City>>();
+		Result<List<City>> r = new ResultImpl<List<City>>(this.getId(), this.getParentId());
 		if (minRoutes != null) {
 			List<City> chosenMinRoute = null;
 			double minLength = Double.MAX_VALUE;

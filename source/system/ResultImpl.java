@@ -17,14 +17,18 @@ public class ResultImpl<T> implements Result<T>, Serializable {
 	private static final long serialVersionUID = -7688137730920618986L;
 	private T result;
 	private List<Task<T>> subTasks;
+	private String taskId;
+	private String taskParentId;
 
 	/**
 	 * Default constructor
 	 */
 	
-	public ResultImpl() {
+	public ResultImpl(String taskId, String taskParentId) {
 		this.result = null;
 		this.subTasks = null;
+		this.taskId=taskId;
+		this.taskParentId=taskParentId;
 	}
 
 	/**
@@ -65,6 +69,22 @@ public class ResultImpl<T> implements Result<T>, Serializable {
 	@Override
 	public void setSubTasks(List<Task<T>> subTasks) {
 		this.subTasks = subTasks;
+	}
+
+	/* (non-Javadoc)
+	 * @see api.Result#getId()
+	 */
+	@Override
+	public String getId() {
+		return taskId;
+	}
+
+	/* (non-Javadoc)
+	 * @see api.Result#getParentId()
+	 */
+	@Override
+	public String getParentId() {
+		return taskParentId;
 	}
 
 }
