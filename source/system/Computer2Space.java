@@ -20,15 +20,9 @@ public interface Computer2Space extends java.rmi.Remote {
 	 * @param computer
 	 *            Registers a remote computer with the resource allocator that
 	 *            manages the cluster operations
-	 * @param computerId
-	 *            Any unique identification for the remote computer like host
-	 *            name or IP address
-	 * @param numOfProcessors
-	 *            Number of processors in the remote computer
 	 * @throws java.rmi.RemoteException
 	 */
-	void register(Computer computer, String computerId, int numOfProcessors)
-			throws RemoteException;
+	void register(Computer computer, String id, int numOfProcessors) throws RemoteException;
 
 	/**
 	 * Used by ({@link system.Computer Computer}) Objects to communicate new
@@ -43,15 +37,5 @@ public interface Computer2Space extends java.rmi.Remote {
 	 * @throws RemoteException
 	 */
 	void broadcast(Broadcast broadcast) throws RemoteException;
-	
-	/**
-	 * Used by ({@link system.Computer Computer}) Objects to communicate results
-	 * to Space. The space in-turn 
-	 * 
-	 * @param results
-	 *            Results obtained from exection of tasks
-	 * 
-	 * @throws RemoteException
-	 */
-	void sendResults(List<Result<?>> results) throws RemoteException;
+	void sendResults(List<Result<?>> results, String ComputerId) throws RemoteException;
 }

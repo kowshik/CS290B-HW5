@@ -7,277 +7,277 @@ import system.Computer;
 import system.Shared;
 
 /**
- * Models any task that can be executed on a remote machine using <a
- * href="http://en.wikipedia.org/wiki/Divide_and_conquer_algorithm">Divide and
- * conquer algorithm</a>. Every task in the Divide and Conquer tree is
- * identified by an ID. The parent of each task is identified by a parentID.
- * 
- * Any client wanting to run a task using the divide and conquer paradigm in the
- * compute space should implement this interface.
- * 
- * For example, let us consider the implementation of a Fibonacci Series Task
- * that returns the Nth fibonacci number.
- * 
- * In mathematical terms, the sequence F(n) : of Fibonacci numbers is defined by
- * the recurrence relation :
- * 
- * <pre>
- * F(n) = F(n - 1) + F(n - 2)
- * </pre>
- * 
- * with seed values
- * 
- * <pre>
- * F(0) = 0 and F(1) = 1
- * </pre>
- * 
- * class FibonacciTask implementing this interface is expected to contain the
- * following code :
- * 
- * 
- * <pre>
- * class FibonacciTask implements Task&lt;Integer&gt; {
- * 
- * 	public Result&lt;?&gt; execute() {
- * 		if (this.getStatus() == DECOMPOSE) {
- * 			return this.decompose();
- * 		}
- * 		if (this.getStatus() == COMPOSE) {
- * 			return this.compose();
- * 		}
- * 	}
- * 
- * 	private Result&lt;Integer&gt; decompose() {
- * 		Result&lt;Integer&gt; r = new ResultImpl&lt;Integer&gt;();
- * 		if (n &lt; 2) {
- * 			// Base case of recursion i.e. F(0) and F(1)
- * 			r.setValue(n);
- * 		} else {
- * 			// Dividing F(n) into F(n-1) and F(n-2)
- * 			List&lt;Task&lt;Integer&gt;&gt; subTasks = new Vector&lt;Task&lt;Integer&gt;&gt;();
- * 
- * 			// Creating new subtasks
- * 			subTasks.add(new FibonacciTask(n - 1, Task.Status.DECOMPOSE, id,
- * 					this.getId()));
- * 			subTasks.add(new FibonacciTask(n - 2, Task.Status.DECOMPOSE, id,
- * 					this.getId()));
- * 
- * 			// Adding the subtasks to a result object and returning it
- * 			r.setSubTasks(subTasks);
- * 		}
- * 		return r;
- * 	}
- * 
- * 	private Result&lt;Integer&gt; compose(List&lt;?&gt; list) {
- * 		Result&lt;Integer&gt; r = null;
- * 		List&lt;?&gt; values = this.getValues();
- * 		if (values != null) {
- * 			int sum = 0;
- * 			for (Integer value : (List&lt;Integer&gt;) values) {
- * 				// Aggregating values produced by base case of recursion
- * 				sum += value;
- * 			}
- * 			r = new ResultImpl&lt;Integer&gt;();
- * 			r.setValue(sum);
- * 		}
- * 		return r;
- * 	}
- * }
- * </pre>
- * 
- * 
- * 
- * @author Manasa Chandrasekhar
- * @author Kowshik Prakasam
- */
+* Models any task that can be executed on a remote machine using <a
+* href="http://en.wikipedia.org/wiki/Divide_and_conquer_algorithm">Divide and
+* conquer algorithm</a>. Every task in the Divide and Conquer tree is
+* identified by an ID. The parent of each task is identified by a parentID.
+*
+* Any client wanting to run a task using the divide and conquer paradigm in the
+* compute space should implement this interface.
+*
+* For example, let us consider the implementation of a Fibonacci Series Task
+* that returns the Nth fibonacci number.
+*
+* In mathematical terms, the sequence F(n) : of Fibonacci numbers is defined by
+* the recurrence relation :
+*
+* <pre>
+* F(n) = F(n - 1) + F(n - 2)
+* </pre>
+*
+* with seed values
+*
+* <pre>
+* F(0) = 0 and F(1) = 1
+* </pre>
+*
+* class FibonacciTask implementing this interface is expected to contain the
+* following code :
+*
+*
+* <pre>
+* class FibonacciTask implements Task&lt;Integer&gt; {
+*
+* public Result&lt;?&gt; execute() {
+* if (this.getStatus() == DECOMPOSE) {
+* return this.decompose();
+* }
+* if (this.getStatus() == COMPOSE) {
+* return this.compose();
+* }
+* }
+*
+* private Result&lt;Integer&gt; decompose() {
+* Result&lt;Integer&gt; r = new ResultImpl&lt;Integer&gt;();
+* if (n &lt; 2) {
+* // Base case of recursion i.e. F(0) and F(1)
+* r.setValue(n);
+* } else {
+* // Dividing F(n) into F(n-1) and F(n-2)
+* List&lt;Task&lt;Integer&gt;&gt; subTasks = new Vector&lt;Task&lt;Integer&gt;&gt;();
+*
+* // Creating new subtasks
+* subTasks.add(new FibonacciTask(n - 1, Task.Status.DECOMPOSE, id,
+* this.getId()));
+* subTasks.add(new FibonacciTask(n - 2, Task.Status.DECOMPOSE, id,
+* this.getId()));
+*
+* // Adding the subtasks to a result object and returning it
+* r.setSubTasks(subTasks);
+* }
+* return r;
+* }
+*
+* private Result&lt;Integer&gt; compose(List&lt;?&gt; list) {
+* Result&lt;Integer&gt; r = null;
+* List&lt;?&gt; values = this.getValues();
+* if (values != null) {
+* int sum = 0;
+* for (Integer value : (List&lt;Integer&gt;) values) {
+* // Aggregating values produced by base case of recursion
+* sum += value;
+* }
+* r = new ResultImpl&lt;Integer&gt;();
+* r.setValue(sum);
+* }
+* return r;
+* }
+* }
+* </pre>
+*
+*
+*
+* @author Manasa Chandrasekhar
+* @author Kowshik Prakasam
+*/
 
 public interface Task<T> {
 
-	/**
-	 * Enum to describe the status of the task during the Divide and the Conquer
-	 * phase. If the task's status is set to DECOMPOSE, then it is said to be in
-	 * the divide phase of execution where the current task is being split into
-	 * smaller subtasks for parallelization on a cluster. If the task's status
-	 * is set to COMPOSE, then it is said to be in the conquer phase of
-	 * execution where results from smaller tasks are being aggregated.
-	 */
-	enum Status {
-		DECOMPOSE, COMPOSE
-	};
+/**
+* Enum to describe the status of the task during the Divide and the Conquer
+* phase. If the task's status is set to DECOMPOSE, then it is said to be in
+* the divide phase of execution where the current task is being split into
+* smaller subtasks for parallelization on a cluster. If the task's status
+* is set to COMPOSE, then it is said to be in the conquer phase of
+* execution where results from smaller tasks are being aggregated.
+*/
+enum Status {
+DECOMPOSE, COMPOSE
+};
 
-	/**
-	 * Enum to describe the queueing status of the task in a remote computer.
-	 * QUEUED indicates that the task has been queued in a remote computer.
-	 * NOT_QUEUED indicates that the task not been queued in any remote
-	 * computer, and the compute space should attempt to allot this task to any
-	 * idle computer.
-	 */
-	enum QueuingStatus {
-		QUEUED, NOT_QUEUED;
-	}
+/**
+* Enum to describe the queueing status of the task in a remote computer.
+* QUEUED indicates that the task has been queued in a remote computer.
+* NOT_QUEUED indicates that the task not been queued in any remote
+* computer, and the compute space should attempt to allot this task to any
+* idle computer.
+*/
+enum QueuingStatus {
+QUEUED, NOT_QUEUED;
+}
 
-	/**
-	 * This method models the the <a
-	 * href="http://en.wikipedia.org/wiki/Divide_and_conquer_algorithm">Divide
-	 * and conquer algorithm</a>. <br>
-	 * <br>
-	 * (1) <i>if(getStatus() == Task.Status.DECOMPOSE)</i> <br>
-	 * <br>
-	 * Then at runtime this method should divide the existing task into smaller
-	 * subtasks, pack the subtasks in a {@link api.Result Result} object and
-	 * return them. The returned subtasks are consumed by a
-	 * {@link api.Client2Space Space} object by queueing them again for
-	 * execution on different machine in the cluster. If the base case of
-	 * recursion has been reached during the process of decomposition, then the
-	 * value can be returned in the {@link api.Result Result} object, instead of
-	 * subtasks. <br>
-	 * <br>
-	 * (2) <i>if(getStatus() == Task.Status.COMPOSE)</i> <br>
-	 * <br>
-	 * Then at runtime this method should compose results of smaller subtasks
-	 * that were earlier generated by this task during the 'Divide' phase, into
-	 * a single value that can be consumed by the parent of this task in the
-	 * overall recursion tree. See {@link #putValues(List)} and
-	 * {@link #getValues()} to know how values can be passed to setup the
-	 * 'Conquer' phase of execution.
-	 * 
-	 * @return A {@link api.Result Result} object containing either subtasks
-	 *         that have been created during this decomposition stage, or value
-	 *         of a base case in the underlying recursion, or value obtained by
-	 *         composing results of smaller subtasks that were generated by this
-	 *         task in the 'Divide' phase
-	 */
-	Result<?> execute();
+/**
+* This method models the the <a
+* href="http://en.wikipedia.org/wiki/Divide_and_conquer_algorithm">Divide
+* and conquer algorithm</a>. <br>
+* <br>
+* (1) <i>if(getStatus() == Task.Status.DECOMPOSE)</i> <br>
+* <br>
+* Then at runtime this method should divide the existing task into smaller
+* subtasks, pack the subtasks in a {@link api.Result Result} object and
+* return them. The returned subtasks are consumed by a
+* {@link api.Client2Space Space} object by queueing them again for
+* execution on different machine in the cluster. If the base case of
+* recursion has been reached during the process of decomposition, then the
+* value can be returned in the {@link api.Result Result} object, instead of
+* subtasks. <br>
+* <br>
+* (2) <i>if(getStatus() == Task.Status.COMPOSE)</i> <br>
+* <br>
+* Then at runtime this method should compose results of smaller subtasks
+* that were earlier generated by this task during the 'Divide' phase, into
+* a single value that can be consumed by the parent of this task in the
+* overall recursion tree. See {@link #putValues(List)} and
+* {@link #getValues()} to know how values can be passed to setup the
+* 'Conquer' phase of execution.
+*
+* @return A {@link api.Result Result} object containing either subtasks
+* that have been created during this decomposition stage, or value
+* of a base case in the underlying recursion, or value obtained by
+* composing results of smaller subtasks that were generated by this
+* task in the 'Divide' phase
+*/
+Result<?> execute();
 
-	/**
-	 * @return Returns the status of this task
-	 * 
-	 * 
-	 */
-	Task.Status getStatus();
+/**
+* @return Returns the status of this task
+*
+*
+*/
+Task.Status getStatus();
 
-	/**
-	 * Sets the status of this task. This method can be used by a
-	 * {@link api.Client2Space Space} object to switch the status of a subtask
-	 * after the from DECOMPOSE (after the 'Divide' phase) into COMPOSE (to
-	 * start the 'Conquer' phase).
-	 * 
-	 * 
-	 */
+/**
+* Sets the status of this task. This method can be used by a
+* {@link api.Client2Space Space} object to switch the status of a subtask
+* after the from DECOMPOSE (after the 'Divide' phase) into COMPOSE (to
+* start the 'Conquer' phase).
+*
+*
+*/
 
-	void setStatus(Task.Status s);
+void setStatus(Task.Status s);
 
-	
-	/**
-	 * @return Returns the queueing status of the task
-	 */
-	
-	Task.QueuingStatus getQueuingStatus();
-	
-	/**
-	 * @param Sets the queueing status of the task
-	 */
-	
-	void setQueuingStatus(Task.QueuingStatus status);
-	
-	/**
-	 * 
-	 * @return ID of the parent task in the recursion tree
-	 */
-	String getParentId();
 
-	/**
-	 * 
-	 * Sets the ID of the parent task in the recursion tree
-	 */
-	void setParentId(String id);
+/**
+* @return Returns the queueing status of the task
+*/
 
-	/**
-	 * 
-	 * @return Unique ID representing this task in the recursion tree
-	 */
+Task.QueuingStatus getQueuingStatus();
 
-	String getId();
+/**
+* @param Sets the queueing status of the task
+*/
 
-	/**
-	 * 
-	 * Sets a unique ID representing this task in the recursion tree
-	 */
+void setQueuingStatus(Task.QueuingStatus status);
 
-	void setId(String taskId);
+/**
+*
+* @return ID of the parent task in the recursion tree
+*/
+String getParentId();
 
-	/**
-	 * 
-	 * @return Number of smaller subtasks generated by this task at the end of
-	 *         the DECOMPOSE ('Divide') phase.
-	 */
+/**
+*
+* Sets the ID of the parent task in the recursion tree
+*/
+void setParentId(String id);
 
-	int getDecompositionSize();
+/**
+*
+* @return Unique ID representing this task in the recursion tree
+*/
 
-	/**
-	 * 
-	 * @return Unique IDs of all child tasks generated by this task at the end
-	 *         of the DECOMPOSE ('Divide') phase
-	 */
-	List<String> getChildIds();
+String getId();
 
-	/**
-	 * This method in turn calls the {@link system.Computer#getShared()
-	 * system.Computer.getShared()} method to get the shared object stored by
-	 * each computer
-	 * 
-	 * @return The copy of the shared object that is present in the computer
-	 *         executing the task
-	 * @throws RemoteException
-	 *             If the computer throws a remote exception while reading its
-	 *             shared object, then this method in turn throws the exception
-	 */
-	Object getShared() throws RemoteException;
+/**
+*
+* Sets a unique ID representing this task in the recursion tree
+*/
 
-	/**
-	 * This method in turn calls the ({@link system.Computer#broadcast(Shared)
-	 * system.Computer.broadcast(Shared)} ) to set the value of the new shared
-	 * object in the compute pace if its better than the current value.
-	 * 
-	 * @param shared
-	 *            An instance of the shared object whose value has to be set in
-	 *            the shared object in Space
-	 * @throws RemoteException
-	 *             If the computer throws a remote exception while writing to
-	 *             its shared object, then this method in turn throws the
-	 *             exception
-	 */
-	void setShared(Shared<?> shared) throws RemoteException;
+void setId(String taskId);
 
-	/**
-	 * Sets the remote computer where the task will be executing at runtime
-	 * 
-	 * @param computer
-	 *            Computer where the task will be executed
-	 */
-	void setComputer(Computer computer);
+/**
+*
+* @return Number of smaller subtasks generated by this task at the end of
+* the DECOMPOSE ('Divide') phase.
+*/
 
-	/**
-	 * 
-	 * @return Computer where the task will be executed at runtime
-	 */
-	Computer getComputer();
+int getDecompositionSize();
 
-	/**
-	 * 
-	 * @param values
-	 *            A java.util.List containing results obtained from the smaller
-	 *            subtasks that were originally generated by the same task
-	 */
+/**
+*
+* @return Unique IDs of all child tasks generated by this task at the end
+* of the DECOMPOSE ('Divide') phase
+*/
+List<String> getChildIds();
 
-	void putValues(List<?> values);
+/**
+* This method in turn calls the {@link system.Computer#getShared()
+* system.Computer.getShared()} method to get the shared object stored by
+* each computer
+*
+* @return The copy of the shared object that is present in the computer
+* executing the task
+* @throws RemoteException
+* If the computer throws a remote exception while reading its
+* shared object, then this method in turn throws the exception
+*/
+Object getShared() throws RemoteException;
 
-	/**
-	 * 
-	 * @return values A java.util.List containing results obtained from the
-	 *         smaller subtasks that were originally generated by the same task
-	 *         and populated using {@link #putValues(List)} method.
-	 */
+/**
+* This method in turn calls the ({@link system.Computer#broadcast(Shared)
+* system.Computer.broadcast(Shared)} ) to set the value of the new shared
+* object in the compute pace if its better than the current value.
+*
+* @param shared
+* An instance of the shared object whose value has to be set in
+* the shared object in Space
+* @throws RemoteException
+* If the computer throws a remote exception while writing to
+* its shared object, then this method in turn throws the
+* exception
+*/
+void setShared(Shared<?> shared) throws RemoteException;
 
-	List<T> getValues();
+/**
+* Sets the remote computer where the task will be executing at runtime
+*
+* @param computer
+* Computer where the task will be executed
+*/
+void setComputer(Computer computer);
+
+/**
+*
+* @return Computer where the task will be executed at runtime
+*/
+Computer getComputer();
+
+/**
+*
+* @param values
+* A java.util.List containing results obtained from the smaller
+* subtasks that were originally generated by the same task
+*/
+
+void putValues(List<?> values);
+
+/**
+*
+* @return values A java.util.List containing results obtained from the
+* smaller subtasks that were originally generated by the same task
+* and populated using {@link #putValues(List)} method.
+*/
+
+List<T> getValues();
 }

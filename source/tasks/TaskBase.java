@@ -15,7 +15,7 @@ import api.Task;
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  */
-public abstract  class TaskBase<T> implements Task<T>, Serializable {
+public abstract class TaskBase<T> implements Task<T>, Serializable {
 
 	private static final long serialVersionUID = -139155829609653917L;
 
@@ -26,16 +26,14 @@ public abstract  class TaskBase<T> implements Task<T>, Serializable {
 	private long startTime;
 	protected Computer computer;
 
-	
-
 	protected static final String ID_DELIM = "-";
 	protected static final int DEFAULT_TASK_LEVEL = 0;
 	protected static final int DEFAULT_CHILD_LEVEL = 0;
 	protected static final String DEFAULT_TASK_ID = DEFAULT_TASK_LEVEL
 			+ ID_DELIM + DEFAULT_CHILD_LEVEL;
 
-	public TaskBase(String taskId, String parentId, Status status, Task.QueuingStatus queueingStatus,
-			long startTime) {
+	public TaskBase(String taskId, String parentId, Status status,
+			Task.QueuingStatus queueingStatus, long startTime) {
 		setId(taskId);
 		setParentId(parentId);
 		setStatus(status);
@@ -108,30 +106,29 @@ public abstract  class TaskBase<T> implements Task<T>, Serializable {
 		return level;
 	}
 
-
 	@Override
 	public Object getShared() throws RemoteException {
 		return computer.getShared();
 	}
 
-	
 	@Override
 	public void setShared(Shared<?> shared) throws RemoteException {
 		computer.broadcast(shared);
 	}
 
-	
 	@Override
 	public void setComputer(Computer computer) {
-		this.computer=computer;
+		this.computer = computer;
 	}
-	
+
 	@Override
 	public Computer getComputer() {
 		return this.computer;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see api.Task#getQueuingStatus()
 	 */
 	@Override
@@ -139,11 +136,13 @@ public abstract  class TaskBase<T> implements Task<T>, Serializable {
 		return this.queueingStatus;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see api.Task#getQueuingStatus(api.Task.QueuingStatus)
 	 */
 	@Override
 	public void setQueuingStatus(api.Task.QueuingStatus status) {
-		this.queueingStatus=status;
+		this.queueingStatus = status;
 	}
 }

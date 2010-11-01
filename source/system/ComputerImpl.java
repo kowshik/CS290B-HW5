@@ -67,6 +67,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 	/**
@@ -78,6 +79,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		for (Task<?> t : listOfTasks) {
 			t.setComputer(this);
 			this.taskQueue.add(t);
+			System.out.println("Added task"+t.getId()+ "to computer task Q");
 		}
 	}
 
@@ -190,13 +192,18 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	public synchronized Task<?> getTaskFromQueue() {
 		if (!this.taskQueue.isEmpty()) {
-			this.taskQueue.remove();
+			return this.taskQueue.remove();
 		}
 		return null;
 	}
 
 	@Override
 	public void sendResults(List<Result<?>> results) throws RemoteException {
-		space.sendResults(results);
+		space.sendResults(results, this.id);
 	}
+
+
+	
+	
+
 }
