@@ -1,6 +1,7 @@
 package system;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -44,7 +45,7 @@ public class ComputerProxy {
 		this.compObj = compObj;
 		this.id = proxyId;
 		compObj.setId(this.id);
-		this.queuedTasks = new Vector<Task<?>>();
+		this.queuedTasks = Collections.synchronizedList(new Vector<Task<?>>());
 
 	}
 
@@ -57,13 +58,13 @@ public class ComputerProxy {
 		compObj.setShared(newShared);
 	}
 
-	public synchronized List<Task<?>> getTaskQueue() {
+	public List<Task<?>> getTaskQueue() {
 
 		return queuedTasks;
 
 	}
 
-	public synchronized void addTaskToQueue(Task<?> task) {
+	public void addTaskToQueue(Task<?> task) {
 		queuedTasks.add(task);
 	}
 
@@ -94,12 +95,12 @@ public class ComputerProxy {
 	 * Random().nextInt(26)) + 65); return "" + first + second + third; }
 	 */
 
-	public Computer getCompObj() {
+	public Computer getComputer() {
 		return this.compObj;
 
 	}
 
-	public synchronized Task<?> getTaskFromQueue(String id) {
+	public Task<?> getTaskFromQueue(String id) {
 
 		for (Task<?> t : queuedTasks)
 			if (t.getId().equals(id)) {
@@ -110,7 +111,7 @@ public class ComputerProxy {
 
 	}
 
-	public synchronized void removeTaskFromQueue(String id) {
+	public void removeTaskFromQueue(String id) {
 		System.err.println("Inside removeTaskFromQueue in CP");
 		for (Task<?> t : queuedTasks)
 			if (t.getId().equals(id)) {

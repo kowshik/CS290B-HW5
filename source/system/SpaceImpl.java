@@ -141,7 +141,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 
 	public synchronized void addProxy(ComputerProxy aProxy) {
 		try {
-			this.proxies.put(aProxy, aProxy.getCompObj().getTaskQueueSize());
+			this.proxies.put(aProxy, aProxy.getComputer().getTaskQueueSize());
 		} catch (RemoteException e) {
 			System.err.println("The computer is not reachable");
 
@@ -183,74 +183,75 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	@Override
 	public void run() {
 		while (true) {
-			
-				// System.out.println("In run of Space");
-				while (!proxies.isEmpty()) {
-					ComputerProxy cp = this.getSmallestProxy();
-					String thisProxyId = cp.getId();
 
-					// System.out.println("got proxy :" + thisProxyId);
-					try {
+			// System.out.println("In run of Space");
+			while (!proxies.isEmpty()) {
+				ComputerProxy cp = this.getSmallestProxy();
+				synchronized(cp){
+				String thisProxyId = cp.getId();
+				
+				// System.out.println("got proxy :" + thisProxyId);
+				try {
 
-						if (cp.getCompObj().getTaskQueueSize() < THRESHOLD_QSIZE) {
+					if (cp.getComputer().getTaskQueueSize() < THRESHOLD_QSIZE) {
 
-							List<Task<?>> list = new Vector<Task<?>>();
-							int noOfTasks = cp.getCompObj()
-									.getTaskQueueMaxSize()
-									- cp.getCompObj().getTaskQueueSize();
-							// System.out.println("No of tasks :"+ noOfTasks);
-							for (int i = 0; (!readyTasks.isEmpty())
-									&& i < noOfTasks; i++) {
+						List<Task<?>> list = new Vector<Task<?>>();
+						int maxTasks = cp.getComputer().getTaskQueueMaxSize()
+								- cp.getComputer().getTaskQueueSize();
+						int numOfTasks = 0;
+						for (int i = 0; (!readyTasks.isEmpty()) && i < maxTasks; i++) {
 
-								Task<?> t = removeReadyTask();
+							Task<?> t = removeReadyTask();
 
-								list.add(t);
-								cp.addTaskToQueue(t);
-								System.out.println("Pushed task: " + t.getId());
+							list.add(t);
+							cp.addTaskToQueue(t);
+							System.out.println("Pushed task: " + t.getId());
+							numOfTasks++;
 
-							}
-							cp.getCompObj().addTasks(list);
+						}
+						if (!list.isEmpty()) {
+							cp.getComputer().addTasks(list);
+						}
+						/*
+						 * Get the first entry from the proxy list and add tasks
+						 * to it. Then set the map to show the new values of the
+						 * queue sizes by polling over them.
+						 */
 
-							/*
-							 * Get the first entry from the proxy list and add
-							 * tasks to it. Then set the map to show the new
-							 * values of the queue sizes by polling over them.
-							 */
+						this.proxies.put(cp, numOfTasks);
+						/*
+						 * Set<Entry<ComputerProxy, Integer>> proxySet = proxies
+						 * .entrySet(); for (Entry<ComputerProxy, Integer> e :
+						 * proxySet) { e.setValue(e.getKey().getCompObj()
+						 * .getTaskQueueSize());
+						 */
+					}
+				}
 
-							this.proxies.put(cp, noOfTasks);
-							/*
-							 * Set<Entry<ComputerProxy, Integer>> proxySet =
-							 * proxies .entrySet(); for (Entry<ComputerProxy,
-							 * Integer> e : proxySet) {
-							 * e.setValue(e.getKey().getCompObj()
-							 * .getTaskQueueSize());
-							 */
+				catch (RemoteException e) {
+					System.err
+							.println("Remote Exception occurred in Computer: "
+									+ thisProxyId);
+					System.err.println("Reassigning tasks in Computer"
+							+ thisProxyId + " to ready queue");
+
+					for (Task<?> task : cp.getTaskQueue()) {
+						try {
+							this.put(task);
+
+						} catch (RemoteException ex) {
+							System.err
+									.println("Unable to reassign tasks to ready queue");
+							ex.printStackTrace();
 						}
 					}
-
-					catch (RemoteException e) {
-						System.err
-								.println("Remote Exception occurred in Computer: "
-										+ thisProxyId);
-						System.err.println("Reassigning tasks in Computer"
-								+ thisProxyId + " to ready queue");
-
-						for (Task<?> task : cp.getTaskQueue()) {
-							try {
-								this.put(task);
-
-							} catch (RemoteException ex) {
-								System.err
-										.println("Unable to reassign tasks to ready queue");
-								ex.printStackTrace();
-							}
-						}
-						proxies.remove(cp);
-						IdProxyMap.remove(cp.getId());
+					proxies.remove(cp);
+					IdProxyMap.remove(cp.getId());
 
 					}
 				}
-			
+			}
+
 		}
 	}
 
@@ -310,15 +311,20 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			throws RemoteException {
 		Shared<?> newShared = broadcast.getShared();
 		String computerId = broadcast.getComputerId();
+		System.err.println("Got a broadcast from : " + computerId);
 		if (!shared.isNewerThan(newShared)) {
 			this.setShared(newShared);
+			System.err.println("New shared from : " + computerId + ", Value : "
+					+ newShared.get());
 			Set<Entry<ComputerProxy, Integer>> proxySet = proxies.entrySet();
+			System.err.println("Got proxy entry set");
 			for (Entry<ComputerProxy, Integer> e : proxySet) {
 				if (!e.getKey().getId().equals(computerId)) {
 					e.getKey().setShared(newShared);
 				}
 			}
 		}
+		System.err.println("Returning space broadcast");
 	}
 
 	/**
@@ -339,43 +345,48 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			String thisKey = e.getKey();
 			if (thisKey.equals(task.getId())) {
 				waitingTasks.remove(thisKey);
+				return;
 			}
 		}
 	}
 
-	public void sendResults(List<Result<?>> results,
-			String computerId) throws RemoteException {
+	public void sendResults(List<Result<?>> results, String computerId)
+			throws RemoteException {
 
 		for (Result<?> res : results) {
 			ComputerProxy thisCp = IdProxyMap.get(computerId);
-			Task<?> t = thisCp.getTaskFromQueue(res.getId());
-			if (res.getSubTasks() != null) {
+			synchronized (thisCp) {
+				Task<?> t = thisCp.getTaskFromQueue(res.getId());
+				if (res.getSubTasks() != null) {
 
-				Successor s = new Successor(t, this, t.getDecompositionSize());
-				this.addSuccessor(s);
+					Successor s = new Successor(t, this,
+							t.getDecompositionSize());
+					this.addSuccessor(s);
 
-				for (Task<?> task : res.getSubTasks()) {
-					thisCp.removeTaskFromQueue(res.getParentId());
-					if (task.getQueuingStatus() == Task.QueuingStatus.QUEUED) {
-
-						thisCp.addTaskToQueue(task);
-					} else
-						this.put(task);
+					for (Task<?> task : res.getSubTasks()) {
+						if (task.getQueuingStatus() == Task.QueuingStatus.QUEUED) {
+							thisCp.addTaskToQueue(task);
+						} else
+							this.put(task);
+					}
 				}
-			}
 
-			else if (res.getValue() != null
-					&& (t.getId().equals(t.getParentId()))) {
-				
+				else if (res.getValue() != null
+						&& (t.getId().equals(t.getParentId()))) {
+					System.err
+							.println("Processing task of the result with ID : "
+									+ res.getId() + " and parent ID "
+									+ res.getParentId());
+
+					this.putResult(res);
+				} else {
+
+					Closure parentClosure = this.getClosure(t.getParentId());
+					parentClosure.put(res.getValue());
+
+				}
 				thisCp.removeTaskFromQueue(res.getParentId());
-				this.putResult(res);
-			} else {
-				thisCp.removeTaskFromQueue(res.getParentId());
-				Closure parentClosure = this.getClosure(t.getParentId());
-				parentClosure.put(res.getValue());
-
 			}
-
 		}
 	}
 

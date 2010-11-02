@@ -97,12 +97,14 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	@Override
 	public synchronized boolean broadcast(Shared<?> proposedShared)
 			throws RemoteException {
-
+		System.err.println("Attempting to broadcast to space");
 		if (proposedShared.isNewerThan(shared)) {
 			shared = proposedShared;
 			space.broadcast(new Broadcast(this.shared, this.getId()));
+			System.err.println("Broadcast to space over");
 			return true;
 		}
+		
 		return false;
 	}
 

@@ -43,7 +43,7 @@ public class TspClient {
 			{ 6, 3 }, { 6, 6 }, { 3, 6 } }; */
 
 	private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 },
-		{ 1, 8 } };
+		{ 1, 8 }};
 	public static void main(String[] args) throws Exception {
 
 		String computeSpaceServer = args[0];

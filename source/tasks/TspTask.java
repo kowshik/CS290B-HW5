@@ -88,7 +88,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	private List<List<City>> values;
 
 	// Permissible recursion level beyond which the problem is solved locally
-	private static final int NUMBER_OF_LEVELS = 1;
+	private static final int NUMBER_OF_LEVELS = 2;
 
 	/**
 	 * @param cities
@@ -424,6 +424,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 						if (this.getComputer().broadcast(newShared)) {
 
 							minRoute = thisNewRoute;
+							System.err.println("Stack after broadcast : "+s);
 						}
 						
 					}
@@ -440,6 +441,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+		System.err.println("Returning minRoute : "+minRoute);
 		return minRoute;
 	}
 

@@ -20,25 +20,12 @@ import api.Task;
  * @author Kowshik Prakasam
  * 
  */
-public class Successor implements Runnable {
-
-	private Thread t;
-	private Status threadStatus;
+public class Successor {
 	private String id;
 	private SpaceImpl space;
 	private Task<?> task;
 	private Closure aClosure;
 
-	/**
-	 * Status of this successor thread
-	 * 
-	 * @author Manasa Chandrasekhar
-	 * @author Kowshik Prakasam
-	 * 
-	 */
-	public static enum Status {
-		READY, WAITING, EXECUTING
-	};
 
 	/**
 	 * 
@@ -46,7 +33,6 @@ public class Successor implements Runnable {
 	 *            Number of missing variables in the internal Closure object
 	 */
 	private Successor(int joinCounter) {
-		this.threadStatus = Status.WAITING;
 		this.aClosure = new Closure(joinCounter);
 	}
 
@@ -63,49 +49,13 @@ public class Successor implements Runnable {
 		this.space = spaceImpl;
 		this.task = aTask;
 		this.id = task.getId();
-		t = new Thread(this, aTask.getId());
+		
 
 	}
 
-	/**
-	 * Starts the thread
-	 */
-	public void start() {
-		this.setStatus(Status.EXECUTING);
-		t.start();
-	}
 
-	/**
-	 * Adds the task to the space
-	 */
-	@Override
-	public void run() {
-		try {
-			space.put(task);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
 
-	/**
-	 * 
-	 * @return Status of this thread
-	 */
-	public synchronized Status getStatus() {
-		return this.threadStatus;
-
-	}
-
-	/**
-	 * 
-	 * @param s
-	 *            New status to be set for this thread
-	 */
-	public synchronized void setStatus(Status s) {
-		this.threadStatus = s;
-
-	}
-
+	
 	/**
 	 * 
 	 * @return ID of the successor
@@ -151,7 +101,6 @@ public class Successor implements Runnable {
 			joinCounter--;
 			if (this.joinCounter == 0) {
 				task.putValues(values);
-				setStatus(Status.READY);
 				try {
 					space.put(task);
 				} catch (RemoteException e) {
