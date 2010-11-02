@@ -152,7 +152,12 @@ public class Successor implements Runnable {
 			if (this.joinCounter == 0) {
 				task.putValues(values);
 				setStatus(Status.READY);
-				space.addToReadyQ(task);
+				try {
+					space.put(task);
+				} catch (RemoteException e) {
+					System.err.println("RemoteException inside Closure");
+					e.printStackTrace();
+				}
 				space.removeFromWaitQ(task);
 			
 			}

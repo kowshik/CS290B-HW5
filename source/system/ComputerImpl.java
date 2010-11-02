@@ -199,7 +199,9 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 	@Override
 	public void sendResults(List<Result<?>> results) throws RemoteException {
+		if(results.size() > 0) {
 		space.sendResults(results, this.id);
+		}
 	}
 
 

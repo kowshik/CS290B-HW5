@@ -37,12 +37,13 @@ public class ComputerProxy {
 	private static final String LOG_FILE_PREFIX = "/cs/student/kowshik/computerproxy_";
 	private Computer compObj;
 	private SpaceImpl space;
-	//private Thread t;
+	// private Thread t;
 	private LinkedBlockingQueue<Task<?>> tasks;
 	private String id;
 	private Logger logger;
 	private Handler handler;
 	private List<Task<?>> queuedTasks;
+
 	/**
 	 * 
 	 * @param compObj
@@ -73,9 +74,7 @@ public class ComputerProxy {
 		}
 		this.handler.setFormatter(new SimpleFormatter());
 		logger.addHandler(handler);
-		
 
-		
 		this.queuedTasks = new Vector<Task<?>>();
 
 	}
@@ -88,16 +87,17 @@ public class ComputerProxy {
 			throws RemoteException {
 		compObj.setShared(newShared);
 	}
-	
+
 	public List<Task<?>> getQueuedTasks() {
-		
+
 		return queuedTasks;
 
 	}
-	
+
 	public void setQueuedTasks(Task<?> task) {
 		queuedTasks.add(task);
 	}
+
 	/**
 	 * Loops infinitely and attempts to fetch a {@link api.Task Task} object
 	 * from the proxy's queue and executes it. If the thread is interrupted, the
@@ -113,7 +113,7 @@ public class ComputerProxy {
 	 * switches the status of the task to COMPOSE, immediately after the Divide
 	 * phase is over.
 	 */
-	
+
 	/**
 	 * 
 	 * @param aTask
@@ -132,33 +132,37 @@ public class ComputerProxy {
 	 * 
 	 * @return A random thread name made up of exactly three alphabets
 	 */
-/*	private static String getRandomProxyName() {
-		char first = (char) ((new Random().nextInt(26)) + 65);
-		char second = (char) ((new Random().nextInt(26)) + 65);
-		char third = (char) ((new Random().nextInt(26)) + 65);
-		return "" + first + second + third;
-	} */
+	/*
+	 * private static String getRandomProxyName() { char first = (char) ((new
+	 * Random().nextInt(26)) + 65); char second = (char) ((new
+	 * Random().nextInt(26)) + 65); char third = (char) ((new
+	 * Random().nextInt(26)) + 65); return "" + first + second + third; }
+	 */
 
-	public Computer getCompObj(){
+	public Computer getCompObj() {
 		return this.compObj;
-		
+
 	}
-	
-	public Task<?> getQtask(String id){
-		for(Task<?> t: queuedTasks)
-		if(t.getId().equals(id)){
-			return t;
+
+	public Task<?> getQtask(String id) {
+		synchronized (queuedTasks) {
+			for (Task<?> t : queuedTasks)
+				if (t.getId().equals(id)) {
+					return t;
+				}
+
+			return null;
 		}
-		return null;
 	}
-	
-	public void removeQTask(String id){
-		for(Task<?> t: queuedTasks)
-			if(t.getId().equals(id)){
+
+	public void removeQTask(String id) {
+		synchronized(queuedTasks){
+		for (Task<?> t : queuedTasks)
+			if (t.getId().equals(id)) {
 				queuedTasks.remove(t);
 			}
-			return;
+		return;
+		}
 	}
 
-	
 }
