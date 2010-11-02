@@ -189,7 +189,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			//	System.out.println("got proxy :" + thisProxyId);
 				try {
 				
-					if (cp.getCompObj().getTaskQueueSize() == 0 || cp.getCompObj().getTaskQueueSize() < THRESHOLD_QSIZE) {
+					if (cp.getCompObj().getTaskQueueSize() < THRESHOLD_QSIZE) {
 
 						List<Task<?>> list = new Vector<Task<?>>();
 						int noOfTasks = cp.getCompObj().getTaskQueueMaxSize() - cp.getCompObj().getTaskQueueSize();
@@ -221,7 +221,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 					System.err
 							.println("Remote Exception occurred in Computer: "
 									+ thisProxyId);
-					System.err.println("Reassigning tasks in Computer" + thisProxyId +"to ready queue");
+					System.err.println("Reassigning tasks in Computer" + thisProxyId +" to ready queue");
 					
 					for(Task<?> task: cp.getQueuedTasks())
 					try {
@@ -232,6 +232,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 								.println("Unable to reassign tasks to ready queue");
 						ex.printStackTrace();
 					}
+				
 				}
 			}
 			}
@@ -332,11 +333,12 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			ComputerProxy thisCp = IdProxyMap.get(computerId);
 			Task<?> t = thisCp.getQtask(res.getId());
 			if (res.getSubTasks() != null) {
-
+				
 				Successor s = new Successor(t, this, t.getDecompositionSize());
 				this.addSuccessor(s);
 
 				for (Task<?> task : res.getSubTasks()) {
+					thisCp.removeQTask(res.getParentId());
 					if (task.getQueuingStatus() == Task.QueuingStatus.QUEUED) {
 
 						thisCp.setQueuedTasks(task);
@@ -347,7 +349,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 
 			else if (res.getValue() != null
 					&& (t.getId().equals(t.getParentId()))) {
-
+				thisCp.removeQTask(res.getParentId());
 				this.putResult(res);
 				Shared<?> proposedShared = thisCp.getCompObj().getShared();
 				if((Double) thisCp.getCompObj().getShared().get() < (Double) (this.getShared().get())){
@@ -358,7 +360,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 				}
 
 			} else {
-
+				thisCp.removeQTask(res.getParentId());
 				Closure parentClosure = this.getClosure(t.getParentId());
 				parentClosure.put(res.getValue());
 
