@@ -54,8 +54,8 @@ public class ResultSink implements Runnable {
 	 */
 	@Override
 	public void run() {
+		System.out.println("Sink thread started"+ this);
 		while (true) {
-			System.out.println("Sink thread started"+ this);
 			if (this.getQueueSize() >= this.maxQueueSize || this.getQueueSize() < 5) {
 				List<Result<?>> results = new LinkedList<Result<?>>();
 				for (int index = 1; index <= this.maxQueueSize; index++) {
@@ -67,7 +67,7 @@ public class ResultSink implements Runnable {
 				// Attempt to send results to the compute space
 				try {
 					comp.sendResults(results);
-					System.out.println("Sent results to Space");
+					
 				} catch (RemoteException e) {
 					System.err
 							.println("RemoteException occured while sending results to space");

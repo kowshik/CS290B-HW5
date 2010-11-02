@@ -3,7 +3,7 @@
 
 <project name="CS290B-${hw_folder}" basedir=".">
     <description>
-        Builds, tests, and runs the project CS-290B-HW2.
+        Builds, tests, and runs the project CS-290B-HW5.
     </description>
     
     <property name="src" location="source"/>
@@ -13,7 +13,7 @@
     
     <!-- codebase properties -->
     
-    <property name="hw_folder" value="hw4"/>
+    <property name="hw_folder" value="hw5"/>
     <property name="client_file_codebase" location="/cs/student/${username}/public_html/CS290B/${hw_folder}/"/>
     <property name="client_web_codebase" value="http://www.cs.ucsb.edu/~${username}/CS290B/${hw_folder}/"/>
     <property name="client_codebase_server" value="csil.cs.ucsb.edu"/>
