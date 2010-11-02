@@ -54,12 +54,16 @@ public class Worker implements Runnable {
 	public void run() {
 		System.out.println("Started worker thread : " + this.getId());
 		while (true) {
+			
 			Task<?> aTask = comp.getTaskFromQueue();
+			
 			if (!(aTask == null)) {
 				Result<?> r = aTask.execute();
 				sink.putResult(r);
 			}
+			
 		}
+		
 	}
 
 }

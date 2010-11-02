@@ -88,7 +88,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	private List<List<City>> values;
 
 	// Permissible recursion level beyond which the problem is solved locally
-	private static final int NUMBER_OF_LEVELS = 5;
+	private static final int NUMBER_OF_LEVELS = 2;
 
 	/**
 	 * @param cities
@@ -211,12 +211,16 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 * 
 	 */
 	private Result<List<City>> decompose() {
+		System.out.println("TSP decompose with task "+ this.getId() + "  Parent = " + this.getParentId());
 		Result<List<City>> r = new ResultImpl<List<City>>(this.getId(), this
 				.getParentId());
 		try {
 			// Get the shared object from the computer
 			TspShared compShared = (TspShared) this.computer.getShared();
-
+			if (compShared == null){
+				System.out.println("The shared object doesnt exist");
+			}
+			//System.out.println("Got shared object");
 			// Is lower-bound greater than upper-bound ?
 			if (compShared.get().equals(TspShared.INFINITY)
 					|| lowerBound <= compShared.get()) {
@@ -229,6 +233,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 					List<Task<List<City>>> subTasks = new Vector<Task<List<City>>>();
 					List<String> childIds = this.getChildIds();
 					int childIndex = 0;
+					System.out.println("Children for level"+currentRoute.size()+": "+childIds);
 
 					/*
 					 * Find child cities for next level of decomposition and
@@ -251,7 +256,9 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 									this.currentRoute, childCities, childId,
 									this.getId(), Task.Status.DECOMPOSE,
 									lowerBound);
+							childTask.setComputer(computer);
 							subTasks.add(childTask);
+							System.out.println("Added subtask "+childId+" to the Result Sink");
 						}
 					}
 

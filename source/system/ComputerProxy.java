@@ -151,6 +151,14 @@ public class ComputerProxy {
 		}
 		return null;
 	}
+	
+	public void removeQTask(String id){
+		for(Task<?> t: queuedTasks)
+			if(t.getId().equals(id)){
+				queuedTasks.remove(t);
+			}
+			return;
+	}
 
 	
 }
