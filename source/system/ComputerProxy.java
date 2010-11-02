@@ -1,18 +1,9 @@
 package system;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
-import system.Successor.Closure;
-import api.Result;
 import api.Task;
 
 /**
@@ -34,14 +25,8 @@ import api.Task;
  * 
  */
 public class ComputerProxy {
-	private static final String LOG_FILE_PREFIX = "/cs/student/kowshik/computerproxy_";
 	private Computer compObj;
-	private SpaceImpl space;
-	// private Thread t;
-	private LinkedBlockingQueue<Task<?>> tasks;
 	private String id;
-	private Logger logger;
-	private Handler handler;
 	private List<Task<?>> queuedTasks;
 
 	/**
@@ -54,27 +39,11 @@ public class ComputerProxy {
 	 *            responsible for maintaining each instance of this class
 	 * @throws RemoteException
 	 */
-	public ComputerProxy(Computer compObj, SpaceImpl space, String proxyId)
+	public ComputerProxy(Computer compObj, String proxyId)
 			throws RemoteException {
 		this.compObj = compObj;
-		this.space = space;
-		this.tasks = new LinkedBlockingQueue<Task<?>>();
 		this.id = proxyId;
 		compObj.setId(this.id);
-		this.logger = Logger.getLogger("ComputerProxy" + id);
-		this.logger.setUseParentHandlers(false);
-		this.handler = null;
-		try {
-			this.handler = new FileHandler(LOG_FILE_PREFIX + id + ".log");
-
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		this.handler.setFormatter(new SimpleFormatter());
-		logger.addHandler(handler);
-
 		this.queuedTasks = new Vector<Task<?>>();
 
 	}
@@ -88,13 +57,13 @@ public class ComputerProxy {
 		compObj.setShared(newShared);
 	}
 
-	public List<Task<?>> getQueuedTasks() {
+	public synchronized List<Task<?>> getTaskQueue() {
 
 		return queuedTasks;
 
 	}
 
-	public void setQueuedTasks(Task<?> task) {
+	public synchronized void addTaskToQueue(Task<?> task) {
 		queuedTasks.add(task);
 	}
 
@@ -116,20 +85,6 @@ public class ComputerProxy {
 
 	/**
 	 * 
-	 * @param aTask
-	 *            A task to be added to this proxy's queue
-	 */
-	public synchronized void addTask(Task<?> aTask) {
-		try {
-			this.tasks.put(aTask);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * 
 	 * @return A random thread name made up of exactly three alphabets
 	 */
 	/*
@@ -144,25 +99,27 @@ public class ComputerProxy {
 
 	}
 
-	public Task<?> getQtask(String id) {
-		synchronized (queuedTasks) {
-			for (Task<?> t : queuedTasks)
-				if (t.getId().equals(id)) {
-					return t;
-				}
+	public synchronized Task<?> getTaskFromQueue(String id) {
 
-			return null;
-		}
-	}
-
-	public void removeQTask(String id) {
-		synchronized(queuedTasks){
 		for (Task<?> t : queuedTasks)
 			if (t.getId().equals(id)) {
+				return t;
+			}
+
+		return null;
+
+	}
+
+	public synchronized void removeTaskFromQueue(String id) {
+		System.err.println("Inside removeTaskFromQueue in CP");
+		for (Task<?> t : queuedTasks)
+			if (t.getId().equals(id)) {
+				System.err.println("Removing a task from CP's queue");
 				queuedTasks.remove(t);
+				System.err.println("Removed");
 			}
 		return;
-		}
+
 	}
 
 }

@@ -56,7 +56,7 @@ public class ResultSink implements Runnable {
 	public void run() {
 		System.out.println("Sink thread started"+ this);
 		while (true) {
-			if (this.getQueueSize() >= this.maxQueueSize || this.getQueueSize() < 5) {
+			if (this.getQueueSize() > 5) {
 				List<Result<?>> results = new LinkedList<Result<?>>();
 				for (int index = 1; index <= this.maxQueueSize; index++) {
 					Result<?> aResult;

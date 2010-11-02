@@ -131,7 +131,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	public synchronized void register(Computer computer, String id,
 			int numOfProcessors) throws RemoteException {
 		System.out.println("In registration");
-		ComputerProxy aProxy = new ComputerProxy(computer, this, id);
+		ComputerProxy aProxy = new ComputerProxy(computer, id);
 		this.proxies.put(aProxy, computer.getTaskQueueSize());
 		this.IdProxyMap.put(id, aProxy);
 		System.out.println("Registration completed");
@@ -205,7 +205,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 								Task<?> t = removeReadyTask();
 
 								list.add(t);
-								cp.setQueuedTasks(t);
+								cp.addTaskToQueue(t);
 								System.out.println("Pushed task: " + t.getId());
 
 							}
@@ -235,7 +235,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 						System.err.println("Reassigning tasks in Computer"
 								+ thisProxyId + " to ready queue");
 
-						for (Task<?> task : cp.getQueuedTasks()) {
+						for (Task<?> task : cp.getTaskQueue()) {
 							try {
 								this.put(task);
 
@@ -348,17 +348,17 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 
 		for (Result<?> res : results) {
 			ComputerProxy thisCp = IdProxyMap.get(computerId);
-			Task<?> t = thisCp.getQtask(res.getId());
+			Task<?> t = thisCp.getTaskFromQueue(res.getId());
 			if (res.getSubTasks() != null) {
 
 				Successor s = new Successor(t, this, t.getDecompositionSize());
 				this.addSuccessor(s);
 
 				for (Task<?> task : res.getSubTasks()) {
-					thisCp.removeQTask(res.getParentId());
+					thisCp.removeTaskFromQueue(res.getParentId());
 					if (task.getQueuingStatus() == Task.QueuingStatus.QUEUED) {
 
-						thisCp.setQueuedTasks(task);
+						thisCp.addTaskToQueue(task);
 					} else
 						this.put(task);
 				}
@@ -366,10 +366,11 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 
 			else if (res.getValue() != null
 					&& (t.getId().equals(t.getParentId()))) {
-				thisCp.removeQTask(res.getParentId());
+				
+				thisCp.removeTaskFromQueue(res.getParentId());
 				this.putResult(res);
 			} else {
-				thisCp.removeQTask(res.getParentId());
+				thisCp.removeTaskFromQueue(res.getParentId());
 				Closure parentClosure = this.getClosure(t.getParentId());
 				parentClosure.put(res.getValue());
 

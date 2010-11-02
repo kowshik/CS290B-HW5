@@ -88,7 +88,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	private List<List<City>> values;
 
 	// Permissible recursion level beyond which the problem is solved locally
-	private static final int NUMBER_OF_LEVELS = 2;
+	private static final int NUMBER_OF_LEVELS = 1;
 
 	/**
 	 * @param cities
@@ -393,6 +393,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		List<City> firstNewRoute = new Vector<City>();
 		List<City> minRoute = null;
 		firstNewRoute.add(this.startCity);
+		System.err.println("First new route : "+firstNewRoute);
 		s.add(firstNewRoute);
 		try {
 
@@ -402,7 +403,8 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 				List<City> kids = this.getKids(thisNewRoute);
 				List<City> wholeRoute = clubRoutes(this.currentRoute,
 						thisNewRoute);
-
+				System.err.println("Whole route : "+wholeRoute);
+				System.err.println("Kids : "+kids);
 				/*
 				 * Prunes the tree by checking if lowerbound has exceeded the
 				 * upperbound
@@ -413,6 +415,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 
 					// Leaf node
 					if (kids.size() == 0) {
+						System.err.println("Leaf node reached !");
 						City lastCity = wholeRoute.get(wholeRoute.size() - 1);
 						City firstCity = wholeRoute.get(0);
 						double newUpperBound = findRouteLength(wholeRoute)
@@ -422,6 +425,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 
 							minRoute = thisNewRoute;
 						}
+						
 					}
 					// Add each non-leaf node to the stack
 					else {
