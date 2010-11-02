@@ -368,17 +368,6 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 					&& (t.getId().equals(t.getParentId()))) {
 				thisCp.removeQTask(res.getParentId());
 				this.putResult(res);
-				Shared<?> proposedShared = thisCp.getCompObj().getShared();
-				if ((Double) thisCp.getCompObj().getShared().get() < (Double) (this
-						.getShared().get())) {
-					this.setShared(proposedShared);
-					Broadcast newBroadcast = new Broadcast(proposedShared,
-							thisCp.getCompObj().getId());
-					this.broadcast(newBroadcast);
-					System.out.println("Space shared Object value:"
-							+ this.getShared().get());
-				}
-
 			} else {
 				thisCp.removeQTask(res.getParentId());
 				Closure parentClosure = this.getClosure(t.getParentId());
