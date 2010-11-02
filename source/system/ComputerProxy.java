@@ -58,13 +58,13 @@ public class ComputerProxy {
 		compObj.setShared(newShared);
 	}
 
-	public List<Task<?>> getTaskQueue() {
+	public  List<Task<?>> getTaskQueue() {
 
 		return queuedTasks;
 
 	}
 
-	public void addTaskToQueue(Task<?> task) {
+	public  void addTaskToQueue(Task<?> task) {
 		queuedTasks.add(task);
 	}
 
@@ -95,7 +95,7 @@ public class ComputerProxy {
 	 * Random().nextInt(26)) + 65); return "" + first + second + third; }
 	 */
 
-	public Computer getComputer() {
+	public Computer getCompObj() {
 		return this.compObj;
 
 	}
@@ -112,15 +112,14 @@ public class ComputerProxy {
 	}
 
 	public void removeTaskFromQueue(String id) {
-		System.err.println("Inside removeTaskFromQueue in CP");
+	//	System.err.println("Inside removeTaskFromQueue in CP");
 		for (Task<?> t : queuedTasks)
 			if (t.getId().equals(id)) {
-				System.err.println("Removing a task from CP's queue");
+				//System.err.println("Removing a task from CP's queue");
 				queuedTasks.remove(t);
-				System.err.println("Removed");
+				//System.err.println("Removed");
+				return;
 			}
 		return;
-
 	}
-
 }

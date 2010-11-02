@@ -20,12 +20,22 @@ import api.Task;
  * @author Kowshik Prakasam
  * 
  */
-public class Successor {
+public class Successor{
+
+	
 	private String id;
 	private SpaceImpl space;
 	private Task<?> task;
 	private Closure aClosure;
 
+	/**
+	 * Status of this successor thread
+	 * 
+	 * @author Manasa Chandrasekhar
+	 * @author Kowshik Prakasam
+	 * 
+	 */
+	
 
 	/**
 	 * 
@@ -33,6 +43,7 @@ public class Successor {
 	 *            Number of missing variables in the internal Closure object
 	 */
 	private Successor(int joinCounter) {
+	
 		this.aClosure = new Closure(joinCounter);
 	}
 
@@ -53,13 +64,7 @@ public class Successor {
 
 	}
 
-
-
 	
-	/**
-	 * 
-	 * @return ID of the successor
-	 */
 	public String getId() {
 		return this.id;
 	}
@@ -101,6 +106,7 @@ public class Successor {
 			joinCounter--;
 			if (this.joinCounter == 0) {
 				task.putValues(values);
+				
 				try {
 					space.put(task);
 				} catch (RemoteException e) {

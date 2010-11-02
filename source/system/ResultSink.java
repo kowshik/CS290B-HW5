@@ -54,11 +54,12 @@ public class ResultSink implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.out.println("Sink thread started"+ this);
+		System.err.println("Sink thread started"+ this);
+		
 		while (true) {
 			if (this.getQueueSize() > 0) {
 				List<Result<?>> results = new LinkedList<Result<?>>();
-				for (int index = 1; index <= 5; index++) {
+				for (int index = 1; index <= this.maxQueueSize; index++) {
 					Result<?> aResult;
 					if ((aResult = this.takeResult()) != null) {
 						results.add(aResult);
@@ -111,8 +112,8 @@ public class ResultSink implements Runnable {
 	 * @return Result object at the head of the queue
 	 */
 	private synchronized Result<?> takeResult() {
-		if (!this.resultQueue.isEmpty()) {
-			return this.resultQueue.remove();
+		if (!(this.resultQueue.isEmpty())) {
+			return (this.resultQueue.remove());
 		}
 		return null;
 	}
