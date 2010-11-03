@@ -59,7 +59,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		this.space = space;
 
 		this.taskQueue = new LinkedList<Task<?>>();
-		this.shared = new TspShared(TspShared.INFINITY);
+		this.shared=null;
 		try {
 			this.setNumOfProcessors(Runtime.getRuntime().availableProcessors());
 			this.setId(InetAddress.getLocalHost().getHostName() + "_"
@@ -90,6 +90,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 	@Override
 	public void setShared(Shared<?> shared) {
+		System.err.println("Setting shared : "+shared);
 		this.shared = shared;
 
 	}
@@ -97,11 +98,9 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	@Override
 	public synchronized boolean broadcast(Shared<?> proposedShared)
 			throws RemoteException {
-		System.err.println("Attempting to broadcast to space");
 		if (proposedShared.isNewerThan(shared)) {
 			shared = proposedShared;
 			space.broadcast(new Broadcast(this.shared, this.getId()));
-			System.err.println("Broadcast to space over");
 			return true;
 		}
 		
@@ -200,10 +199,9 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	}
 
 	@Override
-	public void sendResults(List<Result<?>> results) throws RemoteException {
-		if(results.size() > 0) {
-		space.sendResults(results, this.id);
-		}
+	public void sendResults(Result<?> result) throws RemoteException {
+		space.sendResult(result, this.id);
+		
 	}
 
 

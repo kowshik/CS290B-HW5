@@ -37,5 +37,5 @@ public interface Computer2Space extends java.rmi.Remote {
 	 * @throws RemoteException
 	 */
 	void broadcast(Broadcast broadcast) throws RemoteException;
-	void sendResults(List<Result<?>> results, String ComputerId) throws RemoteException;
+	void sendResult(Result<?> result, String ComputerId) throws RemoteException;
 }

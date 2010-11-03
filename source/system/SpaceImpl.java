@@ -94,6 +94,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			throws java.rmi.RemoteException {
 
 		this.shared = shared;
+		for(Entry< String , ComputerProxy > e : this.IdProxyMap.entrySet()){
+			e.getValue().setShared(shared);
+		}
+		
 		if (this.put(aTask)) {
 			try {
 				return results.take();
@@ -129,6 +133,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		this.proxies.put(aProxy, computer.getTaskQueueSize());
 		this.IdProxyMap.put(id, aProxy);
 		System.out.println("Registration completed");
+		computer.setShared(shared);
 		computer.startWorkers(numOfProcessors, TASK_QUEUE_MAX_SIZE);
 
 	}
@@ -197,11 +202,13 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 
 							Task<?> t = removeReadyTask();
 							System.err.println("Removed task " + t.getId()
-									+ "from the ready list");
+									+ " from the ready list");
 
 							list.add(t);
 							cp.addTaskToQueue(t);
-							System.out.println("Pushed task: " + t.getId());
+							System.err
+									.println("Pushed task to computer proxy's Q : "
+											+ t.getId());
 
 						}
 						cp.getCompObj().addTasks(list);
@@ -249,9 +256,47 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		}
 	}
 
+	public void sendResult(Result<?> result, String computerId)
+			throws RemoteException {
+
+		ComputerProxy thisCp = IdProxyMap.get(computerId);
+		/* t is the task that generated the result */
+		Task<?> t = thisCp.getTaskFromQueue(result.getId());
+		System.err.println("Results got from the Task " + result.getId()
+				+ " with subtasks : " + result.getSubTasks());
+		if (result.getSubTasks() != null) {
+
+			Successor s = new Successor(t, this, t.getDecompositionSize());
+			this.addSuccessor(s);
+
+			for (Task<?> task : result.getSubTasks()) {
+
+				if (task.getQueuingStatus().equals(Task.QueuingStatus.QUEUED)) {
+
+					thisCp.addTaskToQueue(task);
+				} else {
+					System.err.println("This task has not been queued "
+							+ task.getId());
+					this.put(task);
+				}
+			}
+		}
+
+		else if (result.getValue() != null
+				&& (t.getId().equals(t.getParentId()))) {
+			this.putResult(result);
+		} else {
+			Closure parentClosure = this.getClosure(t.getParentId());
+			parentClosure.put(result.getValue());
+		}
+		thisCp.removeTaskFromQueue(result.getId());
+	}
+
 	private Task<?> removeReadyTask() {
 		synchronized (readyTasks) {
 			Task<?> t = readyTasks.remove(0);
+			System.err
+					.println("Ready queue after task removal : " + readyTasks);
 			return t;
 		}
 	}
@@ -327,56 +372,16 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		return this.shared;
 	}
 
-	public void removeFromWaitQ(Task<?> task) {
+	public synchronized void removeFromWaitQ(Task<?> task) {
 
+		
 		Set<Entry<String, Successor>> waitQ = waitingTasks.entrySet();
 		for (Entry<String, Successor> e : waitQ) {
 			String thisKey = e.getKey();
 			if (thisKey.equals(task.getId())) {
 				waitingTasks.remove(thisKey);
+				return;
 			}
-		}
-	}
-
-	public void sendResults(List<Result<?>> results, String computerId)
-			throws RemoteException {
-
-		for (Result<?> res : results) {
-			ComputerProxy thisCp = IdProxyMap.get(computerId);
-			/* t is the task that generated the result */
-			Task<?> t = thisCp.getTaskFromQueue(res.getId());
-			System.err.println("Results got from the Task" + res.getId());
-			if (res.getSubTasks() != null) {
-
-				Successor s = new Successor(t, this, t.getDecompositionSize());
-				this.addSuccessor(s);
-
-				for (Task<?> task : res.getSubTasks()) {
-					// thisCp.removeTaskFromQueue(res.getParentId());
-					if (task.getQueuingStatus().equals(
-							Task.QueuingStatus.QUEUED)) {
-
-						thisCp.addTaskToQueue(task);
-					} else {
-						System.err.println("This task has not been queued "+ task.getId());
-						this.put(task);
-					}
-				}
-			}
-
-			else if (res.getValue() != null
-					&& (t.getId().equals(t.getParentId()))) {
-
-				this.putResult(res);
-				// thisCp.removeTaskFromQueue(res.getParentId());
-
-			} else {
-				// thisCp.removeTaskFromQueue(res.getParentId());
-				Closure parentClosure = this.getClosure(t.getParentId());
-				parentClosure.put(res.getValue());
-
-			}
-			thisCp.removeTaskFromQueue(res.getId());
 		}
 	}
 

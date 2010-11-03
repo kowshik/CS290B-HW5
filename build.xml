@@ -244,6 +244,19 @@
             </classpath>
         </java>
     </target>
+	
+	
+	 <target name="runLocalFibClient" description="run fibonacci series client locally" depends="build_client">
+        <!-- run client -->
+        <java classname="client.FibonacciClient" fork="true">
+            <jvmarg value="-Djava.rmi.server.codebase=${client_web_codebase}"/>
+            <jvmarg value="-Djava.security.policy=policy/policy"/>
+            <arg value="localhost:${port}"/>
+            <classpath>
+                <pathelement location="${dist}/client.jar"/>
+            </classpath>
+        </java>
+    </target>
     
     
 </project>

@@ -106,7 +106,7 @@ public class Successor{
 			joinCounter--;
 			if (this.joinCounter == 0) {
 				task.putValues(values);
-				
+				task.setStatus(Task.Status.COMPOSE);
 				try {
 					space.put(task);
 				} catch (RemoteException e) {

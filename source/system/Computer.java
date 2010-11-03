@@ -73,7 +73,7 @@ public interface Computer extends Remote {
 	void startWorkers(int numOfWorkers, int taskQueueMaxSize)
 			throws RemoteException;
 
-	void sendResults(List<Result<?>> results) throws RemoteException;
+	void sendResults(Result<?> result) throws RemoteException;
 
 	int getTaskQueueMaxSize() throws RemoteException;
 

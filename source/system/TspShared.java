@@ -54,5 +54,9 @@ public class TspShared implements Shared<Double>, Serializable {
 	public Double get() {
 		return this.upperBound;
 	}
+	
+	public String toString(){
+		return "Cost -> "+this.get();
+	}
 
 }

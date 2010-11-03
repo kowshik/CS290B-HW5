@@ -1,4 +1,3 @@
-
 package system;
 
 import java.rmi.RemoteException;
@@ -54,21 +53,17 @@ public class ResultSink implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.err.println("Sink thread started"+ this);
-		
+		System.err.println("Sink thread started" + this);
+
 		while (true) {
 			if (this.getQueueSize() > 0) {
-				List<Result<?>> results = new LinkedList<Result<?>>();
-				for (int index = 1; index <= this.maxQueueSize; index++) {
-					Result<?> aResult;
-					if ((aResult = this.takeResult()) != null) {
-						results.add(aResult);
-					}
-				}
+				Result<?> aResult = this.takeResult();
 				// Attempt to send results to the compute space
 				try {
-					comp.sendResults(results);
-					
+					if (aResult != null) {
+						comp.sendResults(aResult);
+					}
+
 				} catch (RemoteException e) {
 					System.err
 							.println("RemoteException occured while sending results to space");

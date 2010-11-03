@@ -45,7 +45,7 @@ public class ComputerProxy {
 		this.compObj = compObj;
 		this.id = proxyId;
 		compObj.setId(this.id);
-		this.queuedTasks = Collections.synchronizedList(new Vector<Task<?>>());
+		this.queuedTasks = new Vector<Task<?>>();
 
 	}
 
@@ -58,68 +58,43 @@ public class ComputerProxy {
 		compObj.setShared(newShared);
 	}
 
-	public  List<Task<?>> getTaskQueue() {
+	public List<Task<?>> getTaskQueue() {
 
 		return queuedTasks;
 
 	}
 
-	public  void addTaskToQueue(Task<?> task) {
+	public void addTaskToQueue(Task<?> task) {
 		queuedTasks.add(task);
 	}
-
-	/**
-	 * Loops infinitely and attempts to fetch a {@link api.Task Task} object
-	 * from the proxy's queue and executes it. If the thread is interrupted, the
-	 * task is returned to the compute space's queue. If the task execution is
-	 * successful, then the {@link api.Result Result} produced is also added to
-	 * compute space's queue of {@link api.Result Result} objects.
-	 * 
-	 * These tasks can either represent the Divide phase or the Conquer phase in
-	 * the <a
-	 * href="http://en.wikipedia.org/wiki/Divide_and_conquer_algorithm">Divide
-	 * and conquer algorithm</a>. Divide tasks are represented by the DECOMPOSE
-	 * status and Conquer tasks are represented by the CONQUER status. The proxy
-	 * switches the status of the task to COMPOSE, immediately after the Divide
-	 * phase is over.
-	 */
-
-	/**
-	 * 
-	 * @return A random thread name made up of exactly three alphabets
-	 */
-	/*
-	 * private static String getRandomProxyName() { char first = (char) ((new
-	 * Random().nextInt(26)) + 65); char second = (char) ((new
-	 * Random().nextInt(26)) + 65); char third = (char) ((new
-	 * Random().nextInt(26)) + 65); return "" + first + second + third; }
-	 */
 
 	public Computer getCompObj() {
 		return this.compObj;
 
 	}
 
-	public Task<?> getTaskFromQueue(String id) {
+	public synchronized Task<?> getTaskFromQueue(String id) {
 
-		for (Task<?> t : queuedTasks)
+		for (int index = 0; index < queuedTasks.size(); index++) {
+			Task<?> t = queuedTasks.get(index);
 			if (t.getId().equals(id)) {
 				return t;
 			}
-
+		}
 		return null;
 
 	}
 
-	public void removeTaskFromQueue(String id) {
-	//	System.err.println("Inside removeTaskFromQueue in CP");
-		for (Task<?> t : queuedTasks)
+	public synchronized void removeTaskFromQueue(String id) {
+		Task<?> t = null;
+		for (int index = 0; index < queuedTasks.size(); index++) {
+			t = queuedTasks.get(index);
 			if (t.getId().equals(id)) {
-				//System.err.println("Removing a task from CP's queue");
-				queuedTasks.remove(t);
-				//System.err.println("Removed");
-				return;
+				break;
 			}
-		return;
+		}
+		if (t != null) {
+			queuedTasks.remove(t);
+		}
 	}
 }
