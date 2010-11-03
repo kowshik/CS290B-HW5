@@ -38,7 +38,7 @@ public interface Client2Space extends java.rmi.Remote {
 	 * @param task
 	 *            task to be added to the Compute Space
 	 * @param shared
-	 *            Shared object to be used  to broadcast messages across workers
+	 *            Shared object to be used to broadcast messages across workers
 	 *            in the compute space for this task
 	 * 
 	 * @throws java.rmi.RemoteException
@@ -52,7 +52,40 @@ public interface Client2Space extends java.rmi.Remote {
 	 */
 	Result<?> compute(Task<?> task, Shared<?> shared)
 			throws java.rmi.RemoteException;
-	 
-	void setLatency(String latency) throws RemoteException;
-	void setMcore(String mcore) throws RemoteException;
+
+	/**
+	 * Allows the client to switch on/off latency optimization. If turned on,
+	 * then the compute space tries to mitigate RMI overhead due to
+	 * communication latency by using a local queue to cache tasks in the remote
+	 * computer.
+	 * 
+	 * @param latency
+	 * @throws RemoteException
+	 */
+
+	void setLatencyOptimization(boolean latency) throws RemoteException;
+
+	/**
+	 * Allows the client to switch on/off multicore processor optimization. If
+	 * turned on, then the compute space attempts to leverage multiple cores for
+	 * processing tasks in remote computer.
+	 * 
+	 * @param latency
+	 * @throws RemoteException
+	 */
+	void setMcoreSwitch(boolean mcore) throws RemoteException;
+
+	/**
+	 * 
+	 * @return Status of latency optimization switch
+	 * @throws RemoteException
+	 */
+	boolean getLatencyOptimization() throws RemoteException;
+
+	/**
+	 * 
+	 * @return Status of multi core processing switch
+	 * @throws RemoteException
+	 */
+	boolean getMcoreSwitch() throws RemoteException;
 }

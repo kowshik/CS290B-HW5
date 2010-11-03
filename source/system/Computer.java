@@ -72,13 +72,43 @@ public interface Computer extends Remote {
 	 */
 	void startWorkers(int numOfWorkers, int taskQueueMaxSize)
 			throws RemoteException;
+	
+	/**
+	 * Communicates results produced to the compute space.
+	 * @param result {@link api.Result Result} to be sent to the space.
+	 * @throws RemoteException
+	 */
 
 	void sendResults(Result<?> result) throws RemoteException;
 
+	/**
+	 * 
+	 * @return Maximum size of internal the task queue
+	 * @throws RemoteException
+	 */
 	int getTaskQueueMaxSize() throws RemoteException;
+	
+	/**
+	 * 
+	 * @param maxSize Sets a cap of the size of the internal task queue
+	 * @throws RemoteException
+	 */
+	void setTaskQueueMaxSize(int maxSize) throws RemoteException;
 
+	/**
+	 * 
+	 * @return Unique computer ID
+	 * @throws RemoteException
+	 */
 	String getId() throws RemoteException;
 
+	/**
+	 * 
+	 * Sets the computer ID
+	 * 
+	 * @param id String to be used as ID
+	 * @throws RemoteException
+	 */
 	void setId(String id) throws RemoteException;
 
 }

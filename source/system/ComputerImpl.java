@@ -33,14 +33,20 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	private Queue<Task<?>> taskQueue;
 	private ResultSink sink;
 	private int taskQueueMaxSize;
-
+	private int receivedTasks;
+	
 	// Return max size of task queue
 	public int getTaskQueueMaxSize() {
 		return taskQueueMaxSize;
 	}
+	
+	// Return max size of task queue
+	public void setTaskQueueMaxSize(int maxSize) {
+		this.taskQueueMaxSize=maxSize;
+	}
 
 	// Gets num of processors available for use by the VM
-	private int getNumOfProcessors() {
+	public int getNumOfProcessors() {
 		return numOfProcessors;
 	}
 
@@ -60,6 +66,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 		this.taskQueue = new LinkedList<Task<?>>();
 		this.shared=null;
+		this.receivedTasks=0;
 		try {
 			this.setNumOfProcessors(Runtime.getRuntime().availableProcessors());
 			this.setId(InetAddress.getLocalHost().getHostName() + "_"
@@ -76,21 +83,25 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	@Override
 	public synchronized void addTasks(List<Task<?>> listOfTasks)
 			throws RemoteException {
+		this.receivedTasks+=listOfTasks.size();
+		System.err.println(this.getId()+" received from space : "+listOfTasks.size()+" task(s). Total : "+this.receivedTasks+".");
 		for (Task<?> t : listOfTasks) {
 			t.setComputer(this);
 			this.taskQueue.add(t);
-			System.out.println("Added task"+t.getId()+ "to computer task Q");
+			//System.out.println("Added task"+t.getId()+ "to computer task Q");
 		}
 	}
 
 	// Add a task to the tail of the queue
 	public synchronized void addTask(Task<?> aTask) {
+		this.receivedTasks++;
+		System.err.println(this.getId()+" received : 1 task(s). Total : "+this.receivedTasks+".");
 		this.taskQueue.add(aTask);
 	}
 
 	@Override
 	public void setShared(Shared<?> shared) {
-		System.err.println("Setting shared : "+shared);
+		//System.err.println("Setting shared : "+shared);
 		this.shared = shared;
 
 	}
@@ -138,7 +149,6 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 					+ computeSpaceServer + "/" + Computer2Space.SERVICE_NAME);
 			ComputerImpl comp = new ComputerImpl(space);
 			space.register(comp, comp.getId(), comp.getNumOfProcessors());
-			System.out.println("Queue Size = "+ comp.getTaskQueueMaxSize());
 			System.out.println("Computer ready : " + comp.getId());
 		} catch (RemoteException e) {
 			System.err.println("ComputerImpl Remote exception : ");
@@ -187,6 +197,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		for (int i = 0; i < numOfWorkers; i++) {
 			new Worker(this, sink);
 		}
+		System.out.println(this.getId()+" -> Started "+numOfWorkers+" worker thread(s)");
 	}
 
 	/**

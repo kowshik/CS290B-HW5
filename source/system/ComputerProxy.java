@@ -12,12 +12,13 @@ import api.Task;
  * compute space ({@link api.Client2Space Space}), there is a proxy maintained
  * by the space. This allows the compute space to maintain multiple threads for
  * each instance of registered {@link system.Computer Computer} objects. This
- * class is responsible for execution of {@link api.Task Task} objects in the
- * registered remote computers.
+ * class is responsible for maintaining all {@link api.Task Task} objects queued
+ * in the registered remote computers.
  * 
- * Each proxy maintains a queue of tasks that need to be executed one after the
- * other on a remote machine. These tasks can either represent the Divide phase
- * or the Conquer phase in the <a
+ * Each proxy maintains a queue of tasks that are currently being executed in
+ * the underlying remote machine or are queued locally in the remote
+ * machine. These tasks can either represent the Divide phase or the Conquer
+ * phase in the <a
  * href="http://en.wikipedia.org/wiki/Divide_and_conquer_algorithm">Divide and
  * conquer algorithm</a>.
  * 
@@ -49,14 +50,29 @@ public class ComputerProxy {
 
 	}
 
+	/**
+	 * 
+	 * @return ID of this computer proxy
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * Sets the shared variable of the internal remote computer
+	 * 
+	 * @param newShared
+	 * @throws RemoteException
+	 */
 	public synchronized void setShared(Shared<?> newShared)
 			throws RemoteException {
 		compObj.setShared(newShared);
 	}
+
+	/**
+	 * 
+	 * @return Size of task queue
+	 */
 
 	public List<Task<?>> getTaskQueue() {
 
@@ -64,14 +80,31 @@ public class ComputerProxy {
 
 	}
 
+	/**
+	 * 
+	 * @param task
+	 *            Task to be appended to internal task queue
+	 */
 	public void addTaskToQueue(Task<?> task) {
 		queuedTasks.add(task);
 	}
+
+	/**
+	 * 
+	 * @return Remote computer object
+	 */
 
 	public Computer getCompObj() {
 		return this.compObj;
 
 	}
+
+	/**
+	 * 
+	 * @param id
+	 *            ID of task to be fetched from internal task queue
+	 * @return
+	 */
 
 	public synchronized Task<?> getTaskFromQueue(String id) {
 
@@ -84,6 +117,12 @@ public class ComputerProxy {
 		return null;
 
 	}
+
+	/**
+	 * 
+	 * @param id
+	 *            ID of task to be removed from internal task queue
+	 */
 
 	public synchronized void removeTaskFromQueue(String id) {
 		Task<?> t = null;

@@ -1,0 +1,53 @@
+<html>
+<title>
+Readme
+</title>
+
+<body bgcolor = "white">
+<p> Note: <a href="http://ant.apache.org/manual/install.html" target="_blank">Apache Ant</a> should be installed before the program can be run </p>
+
+
+<h2> Instructions to compile: </h2>
+
+<ol>
+
+<li> Copy the jar file locally into your machine</li><br>
+<li> Unjar it by executing the following command : <pre>     $> jar xvf &lt;jarfilename&gt;</pre></li>
+<li> Execute the following command to list all the targets available in the project :<pre>     $> ant -projecthelp</pre></li>
+<li> Execute the following command to compile the code :<pre>     $> ant compile</pre></li>
+
+<li> Execute the following command to generate javadoc :<pre>     $> ant javadoc</pre></li>
+
+</ol>
+
+<p> <b>Note:It is optional to run the commands 4 to compile. Running the below commands to execute the program will automatically do the compilation, packaging of JARs and deployment.</b> <p>
+
+<h2> Instructions to start the compute space, computer and clients locally: </h2>
+
+<ol>
+<li> Execute the following command to start the Compute Space.  latency=1 means that Latency Optimization must be switched on. mcore=1 means that Multicore Processing optimization must be switched on :<pre>     $> ant runLocalSpace -Dmcore=1 -Dlatency=0</pre></li>
+<li> Execute the following command to start the Computer :<pre>     $> ant runLocalComputer</pre></li>
+<li> Open a new shell and execute the following command to start a client to display a solution to the Travelling Salesman Problem on screen :<pre>     $> ant runLocalTspClient -Dusername=&lt;username&gt;</font></pre></li>
+<li> Open a new shell and execute the following command to start a client to display the Mandelbrot Set on screen :<pre>     $> ant runLocalMdbClient -Dusername=&lt;username&gt;</font></pre></li>
+<li> Open a new shell and execute the following command to start a client to display the Nth fibonacci number on screen :<pre>     $> ant runLocalFibClient -Dusername=&lt;username&gt;</font></pre></li>
+</ol>
+
+<h2> Instructions to start the compute space, computer and clients on remote machines: </h2>
+
+<ol>
+<li> Execute the following command to start the Compute Space in the remote host <font color="blue"><i>snoopy.cs.ucsb.edu</i></font>. latency=1 means that Latency Optimization must be switched on. mcore=1 means that Multicore Processing optimization must be switched on : <pre>     $> ant runRemoteSpace -Dusername=&lt;username&gt; -Dlatency=0 -Dmcore=1</pre></li>
+<li> Execute the following command to start one Computer at a remote host <pre>     $> ant run1RemoteComputers -Dusername=&lt;username&gt;</pre></li>
+<li> Execute the following command to start four Computers at remote hosts <pre>     $> ant run4RemoteComputers -Dusername=&lt;username&gt;</pre></li>
+<li> Execute the following command to start sixteen Computers at remote hosts <pre>     $> ant run16RemoteComputers -Dusername=&lt;username&gt;</pre></li>
+<li> Open a new shell and execute the following command to start a client to display a solution to the Travelling Salesman Problem on screen by accessing a remote Compute Space :<pre>     $> ant runTspClient -Dusername=&lt;username&gt;</font></pre></li>
+<li> Open a new shell and execute the following command to start a client to display a solution to the Mandelbrot Set on screen by accessing a remote Compute Space :<pre>     $> ant runMdbClient -Dusername=&lt;username&gt;</font></pre></li>
+<li> Open a new shell and execute the following command to start a client to display Nth fibonacci number by accessing a remote Compute Space :<pre>     $> ant runMdbClient -Dusername=&lt;username&gt;</font></pre></li>
+
+</ol>
+
+
+
+
+
+</body>
+</html>

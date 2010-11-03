@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Vector;
 
 import system.ResultImpl;
-import tasks.TspTask.City;
+import system.SpaceRunnable;
 import api.Result;
 import api.Task;
 
@@ -15,7 +15,7 @@ import api.Task;
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  */
-public class FibonacciTask extends TaskBase<Integer> implements Serializable {
+public class FibonacciTask extends TaskBase<Integer> implements Serializable, SpaceRunnable {
 
 	private static final long serialVersionUID = -9046135328040176063L;
 	private static final int NUMBER_OF_CHILDREN = 2;

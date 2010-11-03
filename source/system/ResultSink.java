@@ -53,7 +53,7 @@ public class ResultSink implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.err.println("Sink thread started" + this);
+		System.err.println(comp.getId()+" -> Result Sink thread started");
 
 		while (true) {
 			if (this.getQueueSize() > 0) {
@@ -87,6 +87,7 @@ public class ResultSink implements Runnable {
 		 * local queue to mitigate communication latency in RMI on the compute
 		 * space
 		 */
+		
 		if (aResult.getSubTasks() != null) {
 			for (Task<?> t : aResult.getSubTasks()) {
 				try {

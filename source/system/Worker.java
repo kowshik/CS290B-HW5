@@ -1,4 +1,3 @@
-
 package system;
 
 import api.Result;
@@ -7,7 +6,7 @@ import api.Task;
 /**
  * 
  * A worker thread to execute tasks. The {@link system.Computer Computer} runs
- * many threads of this type to leverage a multi-processor infrastructure.
+ * many instances of this class to leverage a multi-processor infrastructure.
  * 
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
@@ -52,18 +51,19 @@ public class Worker implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.out.println("Started worker thread : " + this.getId());
+		System.out.println(comp.getId()
+				+ " -> Starting Worker thread with ID : " + this.getId());
 		while (true) {
-			
+
 			Task<?> aTask = comp.getTaskFromQueue();
-			
+
 			if (!(aTask == null)) {
 				Result<?> r = aTask.execute();
 				sink.putResult(r);
 			}
-			
+
 		}
-		
+
 	}
 
 }

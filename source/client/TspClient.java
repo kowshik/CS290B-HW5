@@ -39,16 +39,13 @@ public class TspClient {
 	// Input for the Travelling Salesman Problem
 
 	/*
-	 * private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 }, { 1, 8
-	 * }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 }, { 6, 3 }, { 6, 6 },
-	 * { 3, 6 } };
-	 */
-
 	private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 },
 			{ 1, 8 }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 },
-			{ 6, 3 }, { 6, 6 }, { 3, 6 } };
-
-	// , {4,4},{5,4},{5,5},{4,5}
+			{ 6, 3 }, { 6, 6 }, { 3, 6 } , {4,4}, {5,4}, {5,5}, {4,5}};
+			*/
+	private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 },
+		{ 1, 8 }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 },
+		{ 6, 3 }, { 6, 6 }, { 3, 6 } };
 
 	public static void main(String[] args) throws Exception {
 

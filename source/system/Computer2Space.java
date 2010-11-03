@@ -37,5 +37,15 @@ public interface Computer2Space extends java.rmi.Remote {
 	 * @throws RemoteException
 	 */
 	void broadcast(Broadcast broadcast) throws RemoteException;
+	
+	/**
+	 * 
+	 * Used by ({@link system.Computer Computer}) Objects to communicate new
+	 * results to Space.
+	 *
+	 * @param result Result to be communicated to Space
+	 * @param ComputerId ID of the computer reporting the result
+	 * @throws RemoteException
+	 */
 	void sendResult(Result<?> result, String ComputerId) throws RemoteException;
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Vector;
 
 import system.ResultImpl;
+import system.SpaceRunnable;
 import api.Result;
 import api.Task;
 
@@ -18,7 +19,7 @@ import api.Task;
 
 public class MandelbrotSetTask extends
 		TaskBase<MandelbrotSetTask.MandelbrotSetTaskResult> implements
-		Serializable {
+		Serializable, SpaceRunnable {
 
 	/**
 	 * Represents the result of Mandelbrot Set computation

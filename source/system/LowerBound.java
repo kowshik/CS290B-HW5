@@ -13,17 +13,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import tasks.TspTask;
 import tasks.TspTask.City;
 
 /**
+ * Represents a lower bound for the travelling salesman problem. Uses the two
+ * smallest edges of every city to calculate a lower bound value.
+ * 
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  * 
  */
 public class LowerBound implements Cloneable, Serializable {
-	
+
 	private static final long serialVersionUID = -1230131808278869416L;
-	private Map<City, Pair<Edge>> edgeMap;
+	private Map<City, EdgePair> edgeMap;
 
 	private enum EdgeType {
 		REAL, VIRTUAL
@@ -34,10 +38,14 @@ public class LowerBound implements Cloneable, Serializable {
 				+ edgeMap.toString();
 	}
 
+	/**
+	 * 
+	 * @return Lowerbound value of this object. i.e. (Sum of all real edges + virtual edges) / 2.0
+	 */
 	public double getLowerBoundValue() {
 		double lowerBound = 0.0d;
-		for (Entry<City, Pair<Edge>> e : edgeMap.entrySet()) {
-			Pair<Edge> p = e.getValue();
+		for (Entry<City, EdgePair> e : edgeMap.entrySet()) {
+			EdgePair p = e.getValue();
 			if (p != null) {
 				if (p.getFirst() != null) {
 					lowerBound += p.getFirst().getEdgeLength();
@@ -51,21 +59,29 @@ public class LowerBound implements Cloneable, Serializable {
 		return lowerBound / 2.0d;
 	}
 
+	/** 
+	 * Adds  a real edge to the data structure by replacing the virtual edge with the maximum cost
+	 * @param rEdgeStart Start city of real edge to be added
+	 * @param rEdgeEnd End city of real edge to be added
+	 */
 	public void addRealEdge(City rEdgeStart, City rEdgeEnd) {
-		if(rEdgeStart == null ||rEdgeEnd == null|| rEdgeStart.equals(rEdgeEnd)){
+		if (rEdgeStart == null || rEdgeEnd == null
+				|| rEdgeStart.equals(rEdgeEnd)) {
 			return;
 		}
 		Edge realEdge = new Edge(rEdgeStart, rEdgeEnd);
-		Pair<Edge> rEdgeStartPair = this.edgeMap.get(rEdgeStart);
-		Pair<Edge> rEdgeEndPair = this.edgeMap.get(rEdgeEnd);
-		if(rEdgeStartPair.contains(realEdge) || rEdgeEndPair.contains(realEdge)){
+		realEdge.setEdgeType(EdgeType.REAL);
+		EdgePair rEdgeStartPair = this.edgeMap.get(rEdgeStart);
+		EdgePair rEdgeEndPair = this.edgeMap.get(rEdgeEnd);
+		if (rEdgeStartPair.contains(realEdge)
+				|| rEdgeEndPair.contains(realEdge)) {
 			return;
 		}
 		addRealEdge(rEdgeStartPair, realEdge);
 		addRealEdge(rEdgeEndPair, realEdge);
 	}
 
-	public void addRealEdge(Pair<Edge> p, Edge realEdge) {
+	private void addRealEdge(EdgePair p, Edge realEdge) {
 		int edgeToReplace = 1;
 		Edge firstEdge = p.getFirst();
 		Edge secondEdge = p.getFirst();
@@ -78,7 +94,10 @@ public class LowerBound implements Cloneable, Serializable {
 
 		else if (secondEdge.getEdgeType() == EdgeType.VIRTUAL) {
 			edgeToReplace = 2;
+		} else if (firstEdge.getEdgeType() != EdgeType.VIRTUAL) {
+			return;
 		}
+
 		switch (edgeToReplace) {
 		case 1:
 			p.setFirst(realEdge);
@@ -87,10 +106,15 @@ public class LowerBound implements Cloneable, Serializable {
 			p.setSecond(realEdge);
 			break;
 		}
+
 	}
 
+	/**
+	 * 
+	 * @param citiesList List of cities represenging a TSP
+	 */
 	public LowerBound(List<City> citiesList) {
-		edgeMap = new LinkedHashMap<City, Pair<Edge>>();
+		edgeMap = new LinkedHashMap<City, EdgePair>();
 		List<Edge> listOfEdges = new Vector<Edge>();
 		for (City aStartCity : citiesList) {
 			listOfEdges.clear();
@@ -110,7 +134,7 @@ public class LowerBound implements Cloneable, Serializable {
 			if (listOfEdges.size() >= 2) {
 				secondMinEdge = listOfEdges.get(1);
 			}
-			Pair<Edge> edgePair = new Pair<Edge>(firstMinEdge, secondMinEdge);
+			EdgePair edgePair = new EdgePair(firstMinEdge, secondMinEdge);
 			edgeMap.put(aStartCity, edgePair);
 		}
 	}
@@ -118,17 +142,35 @@ public class LowerBound implements Cloneable, Serializable {
 	@Override
 	public Object clone() {
 		try {
-			return super.clone();
+			LowerBound clone = (LowerBound) super.clone();
+			clone.edgeMap = new LinkedHashMap<City, EdgePair>();
+			for (Entry<City, EdgePair> e : this.edgeMap.entrySet()) {
+				City cityClone = (City) e.getKey().clone();
+				EdgePair edgePairClone = (EdgePair) e.getValue().clone();
+				clone.edgeMap.put(cityClone, edgePairClone);
+			}
+			return clone;
+
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	private static class Edge  implements Serializable {
-		
+	/**
+	 * Abstracts an edge in the TSP
+	 * 
+	 * @author Manasa Chandrasekhar
+	 * @author Kowshik Prakasam
+	 *
+	 */
+	private static class Edge implements Serializable, Cloneable {
+
 		private static final long serialVersionUID = -534808833417374784L;
 		private City startCity;
+		private City endCity;
+		private double edgeLength;
+		private EdgeType edgeType;
 
 		public City getStartCity() {
 			return startCity;
@@ -139,8 +181,6 @@ public class LowerBound implements Cloneable, Serializable {
 			this.edgeLength = computeDistance();
 		}
 
-		private City endCity;
-
 		public City getEndCity() {
 			return endCity;
 		}
@@ -150,13 +190,9 @@ public class LowerBound implements Cloneable, Serializable {
 			this.edgeLength = computeDistance();
 		}
 
-		private double edgeLength;
-
 		public double getEdgeLength() {
 			return edgeLength;
 		}
-
-		private EdgeType edgeType;
 
 		public EdgeType getEdgeType() {
 			return edgeType;
@@ -182,17 +218,34 @@ public class LowerBound implements Cloneable, Serializable {
 			return edgeType + " [ " + startCity + " -> " + endCity + " ] = "
 					+ this.edgeLength;
 		}
-		
-		public boolean equals(Object o){
-			Edge e=(Edge)o;
-			if(this.startCity.equals(e.getEndCity()) && this.endCity.equals(e.getEndCity()))
+
+		public boolean equals(Object o) {
+			Edge e = (Edge) o;
+			if (this.startCity.equals(e.getEndCity())
+					&& this.endCity.equals(e.getEndCity()))
 				return true;
 			return false;
 		}
 
+		@Override
+		public Object clone() {
+			try {
+				Edge clone = (Edge) super.clone();
+				clone.startCity = (City) this.startCity.clone();
+				clone.endCity = (City) this.endCity.clone();
+				return clone;
+
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+			return null;
+
+		}
+
 	}
 
-	private static class MinEdgeComparator implements Comparator<Edge>, Serializable {
+	private static class MinEdgeComparator implements Comparator<Edge>,
+			Serializable {
 
 		private static final long serialVersionUID = 2140916688517970507L;
 
@@ -219,45 +272,48 @@ public class LowerBound implements Cloneable, Serializable {
 	}
 
 	/**
+	 * 
+	 * Abstracts a pair of edges in the TSP
+	 * 
 	 * @author Manasa Chandrasekhar
 	 * @author Kowshik Prakasam
 	 * 
 	 */
-	private static class Pair<T> implements Serializable{
+	private static class EdgePair implements Serializable, Cloneable {
 
 		private static final long serialVersionUID = 1685795769196233024L;
-		public T o1;
-		public T o2;
+		private Edge o1;
+		private Edge o2;
 
-		public Pair(T o1, T o2) {
+		public EdgePair(Edge o1, Edge o2) {
 			this.o1 = o1;
 			this.o2 = o2;
 		}
 
-		public static boolean same(Object o1, Object o2) {
+		public static boolean same(Edge o1, Edge o2) {
 			return o1 == null ? o2 == null : o1.equals(o2);
 		}
 
-		T getFirst() {
+		public Edge getFirst() {
 			return o1;
 		}
 
-		T getSecond() {
+		public Edge getSecond() {
 			return o2;
 		}
 
-		void setFirst(T o) {
+		public void setFirst(Edge o) {
 			o1 = o;
 		}
 
-		void setSecond(T o) {
+		public void setSecond(Edge o) {
 			o2 = o;
 		}
 
 		public boolean equals(Object obj) {
-			if (!(obj instanceof Pair))
+			if (!(obj instanceof EdgePair))
 				return false;
-			Pair<?> p = (Pair<?>) obj;
+			EdgePair p = (EdgePair) obj;
 			return same(p.o1, this.o1) && same(p.o2, this.o2);
 		}
 
@@ -265,26 +321,25 @@ public class LowerBound implements Cloneable, Serializable {
 			return "Pair{" + o1 + ", " + o2 + "}";
 		}
 
-		public boolean contains(T someEdge) {
+		public boolean contains(Edge someEdge) {
 			if (same(this.o1, someEdge) || same(this.o2, someEdge)) {
 				return true;
 			}
 			return false;
 		}
-	}
 
-	public static void main(String[] args) {
-		double[][] cities = { { 1, 1 }, { 8, 1 }, { 8, 8 }, { 1, 8 }, { 2, 2 },
-				{ 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 }, { 6, 3 }, { 6, 6 },
-				{ 3, 6 }, { 4, 4 } };
-
-		List<City> citiesList = new Vector<City>();
-		for (int cityIndex = 0; cityIndex < cities.length; cityIndex++) {
-			City c = new City(cityIndex, cities[cityIndex][0],
-					cities[cityIndex][1]);
-			citiesList.add(c);
+		@Override
+		public Object clone() {
+			try {
+				EdgePair clone = (EdgePair) super.clone();
+				clone.o1 = (Edge) this.o1.clone();
+				clone.o2 = (Edge) this.o2.clone();
+				return clone;
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
-		LowerBound lb = new LowerBound(citiesList);
-		System.out.println(lb);
 	}
+	
 }

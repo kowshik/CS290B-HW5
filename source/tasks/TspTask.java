@@ -10,6 +10,7 @@ import java.util.Vector;
 import system.LowerBound;
 import system.ResultImpl;
 import system.Shared;
+import system.SpaceRunnable;
 import system.TspShared;
 import api.Result;
 import api.Task;
@@ -23,7 +24,7 @@ import api.Task;
  * @author Kowshik Prakasam
  */
 public class TspTask extends TaskBase<List<TspTask.City>> implements
-		Serializable {
+		Serializable, SpaceRunnable {
 
 	/**
 	 * Represents a city in the travelling salesman problem by defining its
@@ -32,7 +33,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 * @author Manasa Chandrasekhar
 	 * @author Kowshik Prakasam*
 	 */
-	public static class City implements Serializable {
+	public static class City implements Serializable, Cloneable{
 
 		private static final long serialVersionUID = -8660442769258565881L;
 		private double x;
@@ -76,16 +77,28 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		@Override
 		public boolean equals(Object c) {
 			if (c != null) {
-				if(this.getLabel() == (((City) c).getLabel())){
+				if (this.getLabel() == (((City) c).getLabel())) {
 					return true;
 				}
 			}
 			return false;
 		}
+
+		@Override
+		public int hashCode() {
+			return this.label;
+		}
 		
 		@Override
-		public int hashCode(){
-			return this.label;
+		public Object clone() {
+			try {
+				return super.clone();
+				
+			} catch (CloneNotSupportedException e) {
+				
+				e.printStackTrace();
+			}
+			return null;
 		}
 
 	}
@@ -100,7 +113,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	private List<List<City>> values;
 
 	// Permissible recursion level beyond which the problem is solved locally
-	private static final int NUMBER_OF_LEVELS = 4;
+	private static final int NUMBER_OF_LEVELS = 5;
 
 	/**
 	 * @param cities
@@ -160,34 +173,36 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		this.currentRoute = new Vector<City>(route);
 		this.lowerBoundDataStructure = (LowerBound) parentLBDataStructure
 				.clone();
-		this.lowerBoundDataStructure = computeLowerBound(this.lowerBoundDataStructure, this.currentRoute.lastElement(),
+		
+		this.lowerBoundDataStructure = computeLowerBound(
+				this.lowerBoundDataStructure, this.currentRoute.lastElement(),
 				this.startCity);
-		this.lowerBound=this.lowerBoundDataStructure.getLowerBoundValue();
+	
+		this.lowerBound = this.lowerBoundDataStructure.getLowerBoundValue();
 		this.currentRoute.add(this.startCity);
 		this.numberOfChildren = citiesList.size();
 
 	}
 
-	// TODO : Improve the code below to use algorithm discussed in class
 	/**
 	 * 
 	 * @return The lowerBound for every new child task is calculated and
 	 *         returned using the two shortest edges incident on each city
 	 */
-	private LowerBound computeLowerBound(LowerBound existingLB, City rEdgeStart, City rEdgeEnd) {
-		LowerBound newLowerBound=(LowerBound) existingLB.clone();
+	private LowerBound computeLowerBound(LowerBound existingLB,
+			City rEdgeStart, City rEdgeEnd) {
+		LowerBound newLowerBound = (LowerBound) existingLB.clone();
 		newLowerBound.addRealEdge(rEdgeStart, rEdgeEnd);
 		return newLowerBound;
 	}
-	
+
 	private LowerBound computeLowerBound(LowerBound existingLB, List<City> route) {
-		LowerBound newLowerBound=(LowerBound) existingLB.clone();
-		City rEdgeStart=null, rEdgeEnd=null;
-		if(route.size()>=1){
-			rEdgeStart=rEdgeEnd=route.get(route.size()-1);
+		City rEdgeStart = null, rEdgeEnd = null;
+		if (route.size() >= 1) {
+			rEdgeStart = rEdgeEnd = route.get(route.size() - 1);
 		}
-		if(route.size()>1){
-			rEdgeStart=route.get(route.size()-2);
+		if (route.size() > 1) {
+			rEdgeStart = route.get(route.size() - 2);
 		}
 		return this.computeLowerBound(existingLB, rEdgeStart, rEdgeEnd);
 	}
@@ -209,16 +224,13 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 * 
 	 */
 	private Result<List<City>> decompose() {
-		System.out.println("TSP decompose with task " + this.getId()
-				+ "  Parent = " + this.getParentId());
+		// System.out.println("TSP decompose with task " + this.getId()+
+		// "  Parent = " + this.getParentId());
 		Result<List<City>> r = new ResultImpl<List<City>>(this.getId(),
 				this.getParentId());
 		try {
 			// Get the shared object from the computer
 			TspShared compShared = (TspShared) this.computer.getShared();
-			if (compShared == null) {
-				System.out.println("The shared object doesnt exist");
-			}
 			// System.out.println("Got shared object");
 			// Is lower-bound greater than upper-bound ?
 			if (compShared != null
@@ -233,8 +245,8 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 					List<Task<List<City>>> subTasks = new Vector<Task<List<City>>>();
 					List<String> childIds = this.getChildIds();
 					int childIndex = 0;
-					System.out.println("Children for level"
-							+ currentRoute.size() + ": " + childIds);
+					// System.out.println("Children for level"+
+					// currentRoute.size() + ": " + childIds);
 
 					/*
 					 * Find child cities for next level of decomposition and
@@ -259,8 +271,8 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 									lowerBound, lowerBoundDataStructure);
 							childTask.setComputer(computer);
 							subTasks.add(childTask);
-							System.out.println("Added subtask " + childId
-									+ " to the Result Sink");
+							// System.out.println("Added subtask " + childId +
+							// " to the Result Sink");
 						}
 					}
 
@@ -403,7 +415,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 			// Perform DFS until stack is not empty
 			while (!routeStack.isEmpty()) {
 				List<City> thisNewRoute = routeStack.pop();
-				LowerBound existingLowerBound=lbStack.pop();
+				LowerBound existingLowerBound = lbStack.pop();
 				List<City> kids = this.getKids(thisNewRoute);
 				List<City> wholeRoute = clubRoutes(this.currentRoute,
 						thisNewRoute);
@@ -411,7 +423,10 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 				 * Prunes the tree by checking if lowerbound has exceeded the
 				 * upperbound
 				 */
-				LowerBound newLowerBound=computeLowerBound(existingLowerBound,wholeRoute);
+				
+				LowerBound newLowerBound = computeLowerBound(
+						existingLowerBound, wholeRoute);
+				
 				if (this.getLatestUpperBound() == TspShared.INFINITY
 						|| (newLowerBound.getLowerBoundValue() <= this
 								.getLatestUpperBound())) {
