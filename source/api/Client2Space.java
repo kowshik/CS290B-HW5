@@ -1,5 +1,8 @@
 package api;
 
+import java.nio.ReadOnlyBufferException;
+import java.rmi.RemoteException;
+
 import system.Shared;
 
 /**
@@ -49,4 +52,7 @@ public interface Client2Space extends java.rmi.Remote {
 	 */
 	Result<?> compute(Task<?> task, Shared<?> shared)
 			throws java.rmi.RemoteException;
+	 
+	void setLatency(String latency) throws RemoteException;
+	void setMcore(String mcore) throws RemoteException;
 }

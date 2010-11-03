@@ -51,6 +51,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	private Shared<?> shared;
 	private Map<String, ComputerProxy> IdProxyMap;
 	private static final int TASK_QUEUE_MAX_SIZE = 1000;
+	private static final int TASK_QUEUE_MIN_SIZE = 1;
+	private static final int MIN_PROCESSOR = 1;
+	private String latency;
+	private String mcore;
 
 	// private static final int DEFAULT_QUEUE_SIZE = 1000;
 
@@ -134,8 +138,19 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		this.IdProxyMap.put(id, aProxy);
 		System.out.println("Registration completed");
 		computer.setShared(shared);
+		
+		if(this.latency.equals("1")&&(this.mcore.equals("1"))){
 		computer.startWorkers(numOfProcessors, TASK_QUEUE_MAX_SIZE);
-
+		}
+		else if (this.latency.equals("1")&&(this.mcore.equals("0"))){
+			computer.startWorkers(MIN_PROCESSOR, TASK_QUEUE_MAX_SIZE);
+		}
+			else if (this.latency.equals("0")&&(this.mcore.equals("1"))){
+				computer.startWorkers(numOfProcessors, TASK_QUEUE_MIN_SIZE);
+		}
+			else {
+				computer.startWorkers(MIN_PROCESSOR, TASK_QUEUE_MIN_SIZE);
+		}
 	}
 
 	public synchronized void addProxy(ComputerProxy aProxy) {
@@ -158,6 +173,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	 *            Command-line arguments can be passed (if any)
 	 */
 	public static void main(String[] args) {
+		
+		String latency = args[0];
+		String mcore = args[1];
+		
 
 		if (System.getSecurityManager() == null) {
 			System.setSecurityManager(new SecurityManager());
@@ -165,6 +184,9 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		try {
 
 			Client2Space space = new SpaceImpl();
+			//SpaceImpl s = new SpaceImpl();
+			space.setLatency(latency);
+			space.setMcore(mcore);
 			Registry registry = LocateRegistry.createRegistry(PORT_NUMBER);
 			registry.rebind(Client2Space.SERVICE_NAME, space);
 			System.out.println("Space instance bound");
@@ -398,5 +420,16 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			}
 		}
 		return minProxy;
+	}
+
+	public void setLatency(String latency) {
+		this.latency = latency;
+		
+	}
+
+
+	public void setMcore(String mcore) {
+		this.mcore = mcore;
+		
 	}
 }

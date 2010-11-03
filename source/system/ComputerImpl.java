@@ -138,6 +138,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 					+ computeSpaceServer + "/" + Computer2Space.SERVICE_NAME);
 			ComputerImpl comp = new ComputerImpl(space);
 			space.register(comp, comp.getId(), comp.getNumOfProcessors());
+			System.out.println("Queue Size = "+ comp.getTaskQueueMaxSize());
 			System.out.println("Computer ready : " + comp.getId());
 		} catch (RemoteException e) {
 			System.err.println("ComputerImpl Remote exception : ");
