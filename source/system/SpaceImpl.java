@@ -173,9 +173,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	 *            Command-line arguments can be passed (if any)
 	 */
 	public static void main(String[] args) {
-		
-		String latency = args[1];
-		String mcore = args[2];
+		String latency = args[0];
+		String mcore = args[1];
 		
 
 		if (System.getSecurityManager() == null) {
