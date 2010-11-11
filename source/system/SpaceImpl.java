@@ -243,8 +243,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 			Client2Space space = new SpaceImpl();
 			space.setLatencyOptimization(latencySwitch);
 			space.setMcoreSwitch(mcoreSwitch);
-			System.out.println("Latency -> " + space.getLatencyOptimization());
-			System.out.println("Mutlicore -> " + space.getMcoreSwitch());
+			System.out.println("Commn. Latency Optimization -> " + space.getLatencyOptimization());
+			System.out.println("Multicore Processing -> " + space.getMcoreSwitch());
 			Registry registry = LocateRegistry.createRegistry(PORT_NUMBER);
 			registry.rebind(Client2Space.SERVICE_NAME, space);
 			System.out.println("SpaceImpl -> Space instance bound");
@@ -301,7 +301,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 									+ thisProxyId);
 					System.err.println("Reassigning tasks in Computer"
 							+ thisProxyId + " to ready queue");
-
+					e.printStackTrace();
 					for (Task<?> task : cp.getTaskQueue()) {
 						try {
 							this.put(task);
